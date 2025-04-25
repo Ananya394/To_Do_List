@@ -1,0 +1,39 @@
+{% extends 'routine/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">📘 Exam Routine</h2>
+
+    <div class="text-end mb-3">
+        <a href="{% url 'add_exam' %}" class="btn btn-success">➕ Add Exam</a>
+    </div>
+
+    {% if exams %}
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            {% for exam in exams %}
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ exam.course_name }}</h5>
+                        <p class="card-text">
+                            <strong>Date:</strong> {{ exam.exam_date }}<br>
+                            <strong>Time:</strong> {{ exam.start_time }} - {{ exam.end_time }}<br>
+                            <strong>Location:</strong> {{ exam.location|default:"N/A" }}<br>
+                            {% if exam.note %}
+                                <strong>Note:</strong> {{ exam.note }}
+                            {% endif %}
+                        </p>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'edit_exam' exam.id %}" class="btn btn-primary btn-sm">✏️ Edit</a>
+                            <a href="{% url 'delete_exam' exam.id %}" class="btn btn-danger btn-sm">🗑️ Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center">No exams scheduled yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

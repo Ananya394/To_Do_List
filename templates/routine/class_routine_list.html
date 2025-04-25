@@ -1,0 +1,49 @@
+{% extends 'routine/base.html' %}
+
+{% block title %}Class Routine{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Class Routine List</h2>
+
+<a href="{% url 'add_class_routine' %}" class="btn btn-success mb-3">+ Add New Routine</a>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <select name="day" class="form-select">
+            <option value="">Filter by Day</option>
+            {% for day in days %}
+                <option value="{{ day }}" {% if day == day_filter %}selected{% endif %}>{{ day }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% comment %} <div class="col-md-4">
+        <input type="text" name="q" class="form-control" placeholder="Search by course..." value="{{ search_query }}">
+    </div> {% endcomment %}
+    <div class="col-md-4">
+        <button type="submit" class="btn btn-primary w-100">Apply</button>
+    </div>
+</form>
+
+<div class="row">
+    {% for routine in routines %}
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">{{ routine.subject }}</h5>
+            </div>
+            <div class="card-body bg-light">
+                <p><strong>⏰ Time:</strong> {{ routine.start_time|time:"h:i A" }} - {{ routine.end_time|time:"h:i A" }}</p>
+                <p><strong>📍 Location:</strong> {{ routine.location }}</p>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <a href="{% url 'edit_class_routine' routine.id %}" class="btn btn-warning btn-sm">✏️ Edit</a>
+                <a href="{% url 'delete_class_routine' routine.id %}" class="btn btn-danger btn-sm">🗑️ Delete</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-center text-muted">No routines found.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}
