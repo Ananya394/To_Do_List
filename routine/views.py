@@ -2,7 +2,41 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import ClassRoutine, MyNote, ExamRoutine
 from .forms import ClassRoutineForm, MyNoteForm,ExamForm
 from django.http import JsonResponse
+from django.http import HttpResponse
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
+from .forms import RegistrationForm
+from django.contrib import messages
 
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            login(request, user)
+            return redirect('tasks')  # Redirect to the task list
+    else:
+        form = RegistrationForm()
+    return render(request, 'routine/register.html', {'form': form})  # Correct path to 'base/register.html'
+
+
+def user_login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)  # This will log the user in
+            messages.success(request, "Login successful!")
+            return redirect('tasks')  # Redirect to task list or home
+        else:
+            messages.error(request, "Invalid credentials.")
+    else:
+        form = AuthenticationForm()
+    return render(request, 'routine/login.html', {'form': form})
+
+ 
 # CLASS ROUTINE VIEWS
 def class_routine_list(request):
     routines = ClassRoutine.objects.all()

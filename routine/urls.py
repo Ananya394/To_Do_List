@@ -2,6 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('register/', views.register, name='register'),
+    path('login/', views.user_login, name='login'),
     # Class Routine
     path('classes/', views.class_routine_list, name='class_routine_list'),
     path('classes/add/', views.add_class_routine, name='add_class_routine'),
