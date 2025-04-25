@@ -126,3 +126,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'  # Redirect to homepage after login
 LOGOUT_REDIRECT_URL = '/'  
+# Media files (images, uploaded files, etc.)
+MEDIA_URL = '/media/'  # URL to serve media files
+MEDIA_ROOT = BASE_DIR / 'media/'  # The directory where media files will be stored

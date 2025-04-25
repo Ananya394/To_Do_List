@@ -3,6 +3,14 @@ from django.contrib.auth.models import User
 import datetime
 
 
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Linking the profile to the user
+    bio = models.TextField(null=True, blank=True)  # Allow users to add a bio
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)  # Profile picture
+
+    def __str__(self):
+        return self.user.username  # Return the user's username for easy identification
+
 class ClassRoutine(models.Model):
     #user = models.ForeignKey(User, on_delete=models.CASCADE)
     subject = models.CharField(max_length=100)

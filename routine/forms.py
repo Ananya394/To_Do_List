@@ -2,6 +2,13 @@ from django import forms
 from .models import ClassRoutine,ExamRoutine
 from django.contrib.auth.models import User
 
+from .models import UserProfile
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['bio', 'profile_picture']  # Allow the user to update bio and profile picture
+
 class RegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
     password_confirm = forms.CharField(widget=forms.PasswordInput())
