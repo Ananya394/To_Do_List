@@ -179,6 +179,76 @@ from .forms import UserProfileForm
 
 
 @login_required
+def class_routine_list(request):
+    routines = ClassRoutine.objects.filter(user=request.user)  # Fetch routines for the logged-in user
+    return render(request, 'routine/class_routine_list.html', {'routines': routines})
+
+@login_required
+def exam_list(request):
+    exams = ExamRoutine.objects.filter(user=request.user).order_by('exam_date', 'start_time')  # Fetch exams for the logged-in user
+    return render(request, 'routine/exam_list.html', {'exams': exams})
+
+
+# def edit_task(request, pk):
+#     # Get the task object based on the primary key (pk)
+#     note = get_object_or_404(MyNote, pk=pk)
+
+#     # If the request is a POST (form submission), process the form data
+#     if request.method == 'POST':
+#         form = MyNoteForm(request.POST, request.FILES, instance=note)
+#         if form.is_valid():
+#             form.save()  # Save the updated task
+#             return redirect('my_notes')  # Redirect to the list of notes (or wherever you want after edit)
+#     else:
+#         # If the request is a GET (display the form), create a form bound to the current task instance
+#         form = MyNoteForm(instance=note)
+
+#     # Render the form with the current task data in the template
+#     return render(request, 'routine/my_note_form.html', {'form': form})
+
+def edit_task(request, pk):
+    task = get_object_or_404(MyNote, pk=pk)
+
+    if request.method == 'POST':
+        form = MyNoteForm(request.POST, request.FILES, instance=task)
+        if form.is_valid():
+            form.save()
+            return redirect('my_notes')  # Redirect after saving the task
+    else:
+        form = MyNoteForm(instance=task)
+
+    return render(request, 'routine/my_note_form.html', {'form': form})
+
+# @login_required
+# def dashboard(request):
+#     # Get the tasks associated with the logged-in user
+#     tasks = MyNote.objects.filter(user=request.user)  # Assuming tasks are tied to users
+
+#     # Render the dashboard template and pass the tasks
+#     return render(request, 'routine/dashboard.html', {'tasks': tasks})
+
+@login_required
+def dashboard(request):
+    # Get tasks related to the logged-in user
+    tasks = MyNote.objects.filter(user=request.user).order_by('-created_at')
+    
+    # You can also filter tasks by completion status or other criteria
+    pending_tasks = tasks.filter(attended=False)
+    completed_tasks = tasks.filter(attended=True)
+
+    # Optionally, pass task progress, e.g., completed vs pending
+    total_tasks = tasks.count()
+    completed = completed_tasks.count()
+    progress_percentage = (completed / total_tasks) * 100 if total_tasks > 0 else 0
+
+    return render(request, 'routine/dashboard.html', {
+        'tasks': tasks,
+        'pending_tasks': pending_tasks,
+        'completed_tasks': completed_tasks,
+        'progress_percentage': progress_percentage
+    })
+
+@login_required
 def edit_profile(request):
     profile = get_object_or_404(UserProfile, user=request.user)
     
@@ -186,7 +256,7 @@ def edit_profile(request):
         form = UserProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            return redirect('profile')  # Redirect back to the profile page
+            return redirect('dashboard')  # Redirect back to the profile page
     else:
         form = UserProfileForm(instance=profile)
 
@@ -220,7 +290,7 @@ def user_login(request):
             user = form.get_user()
             login(request, user)  # Log the user in
             messages.success(request, "Login successful!")
-            return redirect('profile')  # Redirect to profile page after successful login
+            return redirect('dashboard')  # Redirect to profile page after successful login
         else:
             messages.error(request, "Invalid credentials.")
     else:
@@ -234,9 +304,14 @@ def user_profile(request):
     return render(request, 'routine/profile.html', {'profile': profile})
 
 # Class Routine Views
-def class_routine_list(request):
-    routines = ClassRoutine.objects.all()
-    return render(request, 'routine/class_routine_list.html', {'routines': routines})
+###
+# def class_routine_list(request):
+#     routines = ClassRoutine.objects.all()
+#     return render(request, 'routine/class_routine_list.html', {'routines': routines})
+
+
+
+
 
 def add_class_routine(request):
     if request.method == 'POST':
@@ -265,9 +340,9 @@ def delete_class_routine(request, pk):
     return redirect('class_routine_list')
 
 # Exam Routine Views
-def exam_list(request):
-    exams = ExamRoutine.objects.order_by('exam_date', 'start_time')
-    return render(request, 'routine/exam_list.html', {'exams': exams})
+# def exam_list(request):
+#     exams = ExamRoutine.objects.order_by('exam_date', 'start_time')
+#     return render(request, 'routine/exam_list.html', {'exams': exams})
 
 def add_exam(request):
     if request.method == 'POST':
@@ -295,19 +370,54 @@ def delete_exam(request, exam_id):
     exam.delete()
     return redirect('exam_list')
 
-# Note Views
+# # Note Views
+# def my_notes_view(request):
+#     notes = MyNote.objects.all().order_by('-created_at')
+
+#     if request.method == 'POST':
+#         form = MyNoteForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('my_notes')
+#     else:
+#         form = MyNoteForm()
+
+#     return render(request, 'routine/my_notes.html', {'form': form, 'notes': notes})
+
+
+
+# def my_notes_view(request):
+#     notes = MyNote.objects.filter(user=request.user).order_by('-created_at')  # Filter notes for the logged-in user
+
+#     if request.method == 'POST':
+#         form = MyNoteForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             note = form.save(commit=False)
+#             note.user = request.user  # Set the user explicitly
+#             note.save()
+#             return redirect('dashboard')
+#     else:
+#         form = MyNoteForm()
+
+#     return render(request, 'routine/my_notes.html', {'form': form, 'notes': notes})
+
+@login_required
 def my_notes_view(request):
-    notes = MyNote.objects.all().order_by('-created_at')
+    notes = MyNote.objects.filter(user=request.user).order_by('-created_at')  # Filter notes for the logged-in user
 
     if request.method == 'POST':
         form = MyNoteForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return redirect('my_notes')
+            note = form.save(commit=False)
+            note.user = request.user  # Set the user explicitly
+            note.save()
+            return redirect('my_notes')  # Redirect after saving the note
     else:
         form = MyNoteForm()
 
     return render(request, 'routine/my_notes.html', {'form': form, 'notes': notes})
+
+
 
 def edit_note(request, pk):
     note = get_object_or_404(MyNote, pk=pk)
@@ -325,3 +435,33 @@ def delete_note(request, pk):
     note.delete()
     return redirect('my_notes')
 
+
+
+# def add_task(request):
+#     if request.method == 'POST':
+#         form = MyNoteForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             note = form.save(commit=False)
+#             note.user = request.user  # Assign the logged-in user to the task
+#             note.save()
+#             return redirect('my_notes')  # Redirect to the list of notes
+#     else:
+#         form = MyNoteForm()
+
+#     return render(request, 'routine/my_note_form.html', {'form': form})
+
+def add_task(request):
+    if request.method == 'POST':
+        form = MyNoteForm(request.POST, request.FILES)
+        if form.is_valid():
+            note = form.save(commit=False)
+            note.user = request.user  # Associate the logged-in user
+            note.save()  # Save the note
+            return redirect('dashboard')  # Redirect to the dashboard after saving the task
+        else:
+            # Debugging: Add a message or log to check why the form isn't valid
+            print(form.errors)  # This will print form validation errors to the console
+    else:
+        form = MyNoteForm()
+
+    return render(request, 'routine/my_note_form.html', {'form': form})

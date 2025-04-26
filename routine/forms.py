@@ -1,7 +1,7 @@
 from django import forms
 from .models import ClassRoutine,ExamRoutine
 from django.contrib.auth.models import User
-
+from .models import MyNote
 from .models import UserProfile
 
 class UserProfileForm(forms.ModelForm):
@@ -56,9 +56,13 @@ class ExamForm(forms.ModelForm):
 }
 
 
-from .models import MyNote
+
+
+
 
 class MyNoteForm(forms.ModelForm):
     class Meta:
         model = MyNote
-        fields = ['title', 'description', 'attachment', 'memory_prompt', 'attended']
+        fields = ['title', 'description', 'attachment', 'memory_prompt', 'attended', 'priority', 'due_date']
+
+    # You can add any custom validation or styling here if needed
