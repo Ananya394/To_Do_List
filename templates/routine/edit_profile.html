@@ -1,0 +1,115 @@
+{% extends 'routine/base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+    <style>
+        body {
+            background-color:rgb(240, 215, 189);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        .container {
+            background-color: rgb(245, 186, 128);
+            border-radius: 10px;
+            box-shadow:  0px 0px 9px 9px rgba(82, 52, 5, 0.9);
+            padding: 30px;
+        }
+
+        .btn-primary {
+            background-color:rgb(94, 42, 3);
+            border-color:rgb(245, 186, 128);
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 150px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid rgb(240, 215, 189);
+        }
+
+        .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .text-muted {
+            color: #6c757d;
+        }
+
+        .lead {
+            font-size: 1.25rem;
+            color: #555;
+        }
+
+        .row {
+            margin-bottom: 30px;
+        }
+
+        .mb-4 {
+            margin-bottom: 30px;
+        }
+    </style>
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">{{ profile.user.username }}Edit Profile</h2>
+        
+        <!-- Profile Picture Section -->
+        <div class="row justify-content-center">
+            <div class="col-md-4 text-center">
+                {% if profile.profile_picture %}
+                    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded-circle" width="200">
+                {% else %}
+                    <p class="text-muted">No profile picture uploaded.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Edit Profile Form Section -->
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Bio Section -->
+            <div class="form-group">
+                <label for="bio">Bio:</label>
+                <textarea id="bio" name="bio" class="form-control" rows="4">{{ profile.bio|default:"No bio provided." }}</textarea>
+            </div>
+
+            <!-- Profile Picture Upload Section -->
+            <div class="form-group">
+                <label for="profile_picture">Profile Picture:</label>
+                <input type="file" name="profile_picture" id="profile_picture" class="form-control-file">
+                {% if profile.profile_picture %}
+                    <p class="text-muted">Currently: {{ profile.profile_picture.url }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group text-center">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+
+        <!-- Link to Edit Profile -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-4 text-center">
+                <a href="{% url 'profile' %}" class="btn btn-secondary btn-lg">Cancel</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

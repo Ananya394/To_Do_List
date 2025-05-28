@@ -1,0 +1,49 @@
+{% extends 'routine/base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        Edit Task: {{ form.instance.title }}
+    {% else %}
+        Add New Task
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>
+        {% if form.instance.pk %}
+            Edit Task: {{ form.instance.title }}
+        {% else %}
+            Add New Task
+        {% endif %}
+    </h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- Form fields rendered as paragraphs -->
+        {{ form.as_p }}
+        
+        <!-- Form Errors Display -->
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">
+            {% if form.instance.pk %}
+                Save Changes
+            {% else %}
+                Save Task
+            {% endif %}
+        </button>
+    </form>
+</div>
+{% endblock %}
