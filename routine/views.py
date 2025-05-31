@@ -269,7 +269,7 @@ def register(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password1'])  # Set the password
+            #user.set_password(form.cleaned_data['password1'])  # Set the password
             user.save()  # Save the user
 
             # Create a user profile after user creation
@@ -317,7 +317,9 @@ def add_class_routine(request):
     if request.method == 'POST':
         form = ClassRoutineForm(request.POST)
         if form.is_valid():
-            form.save()
+            routine = form.save(commit=False)  # Don't save to DB yet
+            routine.user = request.user        # Assign the current logged-in user
+            routine.save()                     # Now save to DB
             return redirect('class_routine_list')
     else:
         form = ClassRoutineForm()
