@@ -7,7 +7,7 @@ from .models import UserProfile
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['bio', 'profile_picture']  # Allow the user to update bio and profile picture
+        fields = ['bio', 'profile_picture']  
 
 class RegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
@@ -25,6 +25,17 @@ class RegistrationForm(forms.ModelForm):
         if password != password_confirm:
             raise forms.ValidationError("Passwords do not match")
         return cleaned_data
+
+    def save(self, commit=True):
+      
+        user = super().save(commit=False)
+      
+        user.set_password(self.cleaned_data['password'])
+        
+        if commit:
+            user.save() 
+        
+        return user
 
 class ClassRoutineForm(forms.ModelForm):
     class Meta:

@@ -57,14 +57,27 @@ from django.contrib.auth.models import User
 import datetime
 
 # UserProfile model
+# class UserProfile(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)  # Linking the profile to the user
+#     bio = models.TextField(null=True, blank=True)  # Allow users to add a bio
+#     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)  # Profile picture
+
+#     def __str__(self):
+#         return self.user.username  # Return the user's username for easy identification
+
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Linking the profile to the user
-    bio = models.TextField(null=True, blank=True)  # Allow users to add a bio
-    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)  # Profile picture
+    ROLE_CHOICES = (
+        ('student', 'Student'),
+        ('admin', 'Admin'),
+    )
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')  # 👈 Add this line
+    bio = models.TextField(null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
 
     def __str__(self):
-        return self.user.username  # Return the user's username for easy identification
-
+        return f"{self.user.username} ({self.role})"
 # ClassRoutine model
 # class ClassRoutine(models.Model):
 #     subject = models.CharField(max_length=100)

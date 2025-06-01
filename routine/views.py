@@ -264,23 +264,43 @@ def edit_profile(request):
 
 
 # Register view
+# def register(request):
+#     if request.method == 'POST':
+#         form = RegistrationForm(request.POST)
+#         if form.is_valid():
+#             user = form.save(commit=False)
+#             #user.set_password(form.cleaned_data['password1'])  # Set the password
+#             user.save()  # Save the user
+
+#             # Create a user profile after user creation
+#             UserProfile.objects.create(user=user)  # Automatically create a UserProfile for the new user
+
+#             login(request, user)  # Log the user in
+#             messages.success(request, "Registration successful!")
+#             return redirect('profile')  # Redirect to the profile page after successful registration
+#     else:
+#         form = RegistrationForm()
+#     return render(request, 'routine/register.html', {'form': form})
+
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password1'])  # Set the password
-            user.save()  # Save the user
+            # Save the user and hash the password
+            user = form.save()
 
-            # Create a user profile after user creation
-            UserProfile.objects.create(user=user)  # Automatically create a UserProfile for the new user
+            # Check if the user already has a profile; if not, create one
+            if not UserProfile.objects.filter(user=user).exists():
+                UserProfile.objects.create(user=user)
 
             login(request, user)  # Log the user in
             messages.success(request, "Registration successful!")
-            return redirect('profile')  # Redirect to the profile page after successful registration
+            return redirect('profile')  # Redirect to the profile page after registration
     else:
         form = RegistrationForm()
+
     return render(request, 'routine/register.html', {'form': form})
+
 
 # Login view
 def user_login(request):
@@ -317,7 +337,9 @@ def add_class_routine(request):
     if request.method == 'POST':
         form = ClassRoutineForm(request.POST)
         if form.is_valid():
-            form.save()
+            routine = form.save(commit=False)  # Don't save to DB yet
+            routine.user = request.user        # Assign the current logged-in user
+            routine.save()                     # Now save to DB
             return redirect('class_routine_list')
     else:
         form = ClassRoutineForm()
