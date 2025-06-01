@@ -287,20 +287,17 @@ def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            # Save the user and hash the password
             user = form.save()
-
-            # Check if the user already has a profile; if not, create one
             if not UserProfile.objects.filter(user=user).exists():
                 UserProfile.objects.create(user=user)
-
-            login(request, user)  # Log the user in
+            login(request, user)  
             messages.success(request, "Registration successful!")
-            return redirect('profile')  # Redirect to the profile page after registration
+            return redirect('profile') 
     else:
         form = RegistrationForm()
 
     return render(request, 'routine/register.html', {'form': form})
+
 
 
 # Login view
