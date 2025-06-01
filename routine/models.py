@@ -57,7 +57,6 @@ from django.contrib.auth.models import User
 import datetime
 
 # UserProfile model
-
 class UserProfile(models.Model):
     ROLE_CHOICES = (
         ('student', 'Student'),
@@ -71,6 +70,7 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} ({self.role})"
+        
 # ClassRoutine model
 # class ClassRoutine(models.Model):
 #     subject = models.CharField(max_length=100)
