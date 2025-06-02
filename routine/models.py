@@ -157,8 +157,8 @@ class ClassRoutine(models.Model):
     day = models.CharField(max_length=10, choices=[('Sunday', 'Sunday'), ('Monday', 'Monday'), ('Tuesday', 'Tuesday'),
                                                    ('Wednesday', 'Wednesday'), ('Thursday', 'Thursday'),
                                                    ('Friday', 'Friday'), ('Saturday', 'Saturday')])
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time =models.TimeField(null=True, blank=True)
+    end_time =models.TimeField(null=True, blank=True)
     location = models.CharField(max_length=100, blank=True)
 
     def __str__(self):

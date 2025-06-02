@@ -180,8 +180,19 @@ from .forms import UserProfileForm
 
 @login_required
 def class_routine_list(request):
-    routines = ClassRoutine.objects.filter(user=request.user)  # Fetch routines for the logged-in user
-    return render(request, 'routine/class_routine_list.html', {'routines': routines})
+    day_filter = request.GET.get('day')
+    routines = ClassRoutine.objects.filter(user=request.user)
+    if day_filter:
+        routines = routines.filter(day=day_filter)
+
+    days = ClassRoutine.objects.filter(user=request.user).values_list('day', flat=True).distinct()
+
+    return render(request, 'routine/class_routine_list.html', {
+        'routines': routines,
+        'days': sorted(days),
+        'selected_day': day_filter,
+    })
+
 
 @login_required
 def exam_list(request):

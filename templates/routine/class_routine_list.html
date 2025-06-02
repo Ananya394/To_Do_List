@@ -3,49 +3,49 @@
 {% block title %}Class Routine{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Class Routine List</h2>
+<h2 class="mb-4">📘 Class Routine</h2>
 
-<a href="{% url 'add_class_routine' %}" class="btn btn-success mb-3">+ Add New Routine</a>
+<a href="{% url 'add_class_routine' %}" class="btn btn-success mb-3">➕ Add New Routine</a>
 
-<form method="get" class="row g-3 mb-4">
-    <div class="col-md-4">
-        <select name="day" class="form-select">
-            <option value="">Filter by Day</option>
-            {% for day in days %}
-                <option value="{{ day }}" {% if day == day_filter %}selected{% endif %}>{{ day }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    {% comment %} <div class="col-md-4">
-        <input type="text" name="q" class="form-control" placeholder="Search by course..." value="{{ search_query }}">
-    </div> {% endcomment %}
-    <div class="col-md-4">
-        <button type="submit" class="btn btn-primary w-100">Apply</button>
-    </div>
-</form>
-
-<div class="row">
-    {% for routine in routines %}
-    <div class="col-md-4 mb-4">
-        <div class="card shadow-sm h-100 border-primary">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title mb-0">{{ routine.subject }}</h5>
-            </div>
-            <div class="card-body bg-light">
-                <p><strong>⏰ Time:</strong> {{ routine.start_time|time:"h:i A" }} - {{ routine.end_time|time:"h:i A" }}</p>
-                <p><strong>📍 Location:</strong> {{ routine.location }}</p>
-            </div>
-            <div class="card-footer d-flex justify-content-between">
-                <a href="{% url 'edit_class_routine' routine.id %}" class="btn btn-warning btn-sm">✏️ Edit</a>
-                <a href="{% url 'delete_class_routine' routine.id %}" class="btn btn-danger btn-sm">🗑️ Delete</a>
-            </div>
-        </div>
-    </div>
-    {% empty %}
-    <p class="text-center text-muted">No routines found.</p>
+<!-- Day Filter Buttons (as links) -->
+<div class="text-center mb-4">
+    <a href="{% url 'class_routine_list' %}" class="btn {% if not selected_day %}btn-secondary{% else %}btn-outline-secondary{% endif %} m-1">Show All</a>
+    {% for day in days %}
+        <a href="{% url 'class_routine_list' %}?day={{ day }}" class="btn {% if day == selected_day %}btn-primary{% else %}btn-outline-primary{% endif %} m-1">{{ day }}</a>
     {% endfor %}
 </div>
 
-<a href="{% url 'dashboard' %}" class="btn btn-success mb-3">- back to dashboard</a>
+{% if routines %}
+<table class="table table-bordered table-striped">
+    <thead class="table-primary">
+        <tr>
+            <th>📅 Day</th>
+            <th>📘 Subject</th>
+            <th>⏰ Time</th>
+            <th>📍 Location</th>
+            <th>⚙️ Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for routine in routines %}
+        <tr>
+            <td>{{ routine.day }}</td>
+            <td>{{ routine.subject }}</td>
+            <td>{{ routine.start_time|time:"h:i A" }} - {{ routine.end_time|time:"h:i A" }}</td>
+            <td>{{ routine.location }}</td>
+            <td>
+                <a href="{% url 'edit_class_routine' routine.id %}" class="btn btn-warning btn-sm">✏️ Edit</a>
+                <a href="{% url 'delete_class_routine' routine.id %}" class="btn btn-danger btn-sm">🗑️ Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-center text-muted">No routines found{% if selected_day %} for <strong>{{ selected_day }}</strong>{% endif %}.</p>
+{% endif %}
 
+<div class="mt-4">
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">🔙 Back to Dashboard</a>
+</div>
 {% endblock %}
