@@ -189,23 +189,6 @@ def exam_list(request):
     return render(request, 'routine/exam_list.html', {'exams': exams})
 
 
-# def edit_task(request, pk):
-#     # Get the task object based on the primary key (pk)
-#     note = get_object_or_404(MyNote, pk=pk)
-
-#     # If the request is a POST (form submission), process the form data
-#     if request.method == 'POST':
-#         form = MyNoteForm(request.POST, request.FILES, instance=note)
-#         if form.is_valid():
-#             form.save()  # Save the updated task
-#             return redirect('my_notes')  # Redirect to the list of notes (or wherever you want after edit)
-#     else:
-#         # If the request is a GET (display the form), create a form bound to the current task instance
-#         form = MyNoteForm(instance=note)
-
-#     # Render the form with the current task data in the template
-#     return render(request, 'routine/my_note_form.html', {'form': form})
-
 def edit_task(request, pk):
     task = get_object_or_404(MyNote, pk=pk)
 
@@ -219,13 +202,6 @@ def edit_task(request, pk):
 
     return render(request, 'routine/my_note_form.html', {'form': form})
 
-# @login_required
-# def dashboard(request):
-#     # Get the tasks associated with the logged-in user
-#     tasks = MyNote.objects.filter(user=request.user)  # Assuming tasks are tied to users
-
-#     # Render the dashboard template and pass the tasks
-#     return render(request, 'routine/dashboard.html', {'tasks': tasks})
 
 @login_required
 def dashboard(request):
@@ -264,23 +240,6 @@ def edit_profile(request):
 
 
 # Register view
-# def register(request):
-#     if request.method == 'POST':
-#         form = RegistrationForm(request.POST)
-#         if form.is_valid():
-#             user = form.save(commit=False)
-#             #user.set_password(form.cleaned_data['password1'])  # Set the password
-#             user.save()  # Save the user
-
-#             # Create a user profile after user creation
-#             UserProfile.objects.create(user=user)  # Automatically create a UserProfile for the new user
-
-#             login(request, user)  # Log the user in
-#             messages.success(request, "Registration successful!")
-#             return redirect('profile')  # Redirect to the profile page after successful registration
-#     else:
-#         form = RegistrationForm()
-#     return render(request, 'routine/register.html', {'form': form})
 
 def register(request):
     if request.method == 'POST':
@@ -370,7 +329,9 @@ def add_exam(request):
     if request.method == 'POST':
         form = ExamForm(request.POST)
         if form.is_valid():
-            form.save()
+            routine = form.save(commit=False)  # Don't save to DB yet
+            routine.user = request.user        # Assign the current logged-in user
+            routine.save() 
             return redirect('exam_list')
     else:
         form = ExamForm()
