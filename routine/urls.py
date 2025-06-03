@@ -18,5 +18,14 @@ urlpatterns = [
     path('my-notes/', views.my_notes_view, name='my_notes'),
     path('my-notes/edit/<int:pk>/', views.edit_note, name='edit_note'),
     path('my-notes/delete/<int:pk>/', views.delete_note, name='delete_note'),
+
+
+    path('activities/', views.activity_list, name='activity_list'),
+    path('activities/create/', views.activity_create, name='activity_create'),
+    path('activities/<int:pk>/edit/', views.activity_edit, name='activity_edit'),
+    path('activities/<int:pk>/delete/', views.activity_delete, name='activity_delete'),
+    path('activities/<int:activity_id>/checklist/add/', views.checklist_add, name='checklist_add'),
+    path('activities/<int:pk>/complete/', views.activity_complete, name='activity_complete'),
+
 ]
 

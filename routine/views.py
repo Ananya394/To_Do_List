@@ -125,3 +125,144 @@ def delete_note(request, pk):
     return redirect('routine/my_notes')
 
 
+<<<<<<< Updated upstream
+=======
+
+# def add_task(request):
+#     if request.method == 'POST':
+#         form = MyNoteForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             note = form.save(commit=False)
+#             note.user = request.user  # Assign the logged-in user to the task
+#             note.save()
+#             return redirect('my_notes')  # Redirect to the list of notes
+#     else:
+#         form = MyNoteForm()
+
+#     return render(request, 'routine/my_note_form.html', {'form': form})
+
+def add_task(request):
+    if request.method == 'POST':
+        form = MyNoteForm(request.POST, request.FILES)
+        if form.is_valid():
+            note = form.save(commit=False)
+            note.user = request.user  # Associate the logged-in user
+            note.save()  # Save the note
+            return redirect('dashboard')  # Redirect to the dashboard after saving the task
+        else:
+            # Debugging: Add a message or log to check why the form isn't valid
+            print(form.errors)  # This will print form validation errors to the console
+    else:
+        form = MyNoteForm()
+
+    return render(request, 'routine/my_note_form.html', {'form': form})
+
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Activity, ChecklistItem
+from .forms import ActivityForm, ChecklistItemForm
+from django.utils import timezone
+
+# List of all user activities
+from datetime import date
+
+from datetime import date
+
+def get_urgency_color(days_left):
+    if days_left >= 7:
+        return "green"
+    elif days_left >= 4:
+        return "yellow"
+    elif days_left >= 0:
+        return "red"
+
+@login_required
+def activity_list(request):
+    activities = Activity.objects.filter(user=request.user).order_by('date')
+    today = date.today()
+
+    for activity in activities:
+        activity.is_completed = activity.status == "C"
+        days_left = (activity.date - today).days
+
+        # For width (how much of the row should be filled)
+        if days_left >= 7:
+            activity.urgency_width = 0
+        elif days_left <= 0:
+            activity.urgency_width = 100
+        else:
+            activity.urgency_width = int(((7 - days_left) / 7) * 100)
+
+        # For color (how critical it is)
+        activity.urgency_color = get_urgency_color(days_left)
+
+        if days_left < 0:
+            activity.days_left_text = f"{abs(days_left)} day(s) overdue"
+        elif days_left == 0:
+            activity.days_left_text = "Due today"
+        else:
+            activity.days_left_text = f"{days_left} day(s) left"
+
+    return render(request, 'routine/activity_list.html', {
+        'activities': activities,
+    })
+
+
+# Add a new activity
+@login_required
+def activity_create(request):
+    if request.method == 'POST':
+        form = ActivityForm(request.POST)
+        if form.is_valid():
+            activity = form.save(commit=False)
+            activity.user = request.user
+            activity.save()
+            return redirect('activity_list')
+    else:
+        form = ActivityForm()
+    return render(request, 'routine/activity_form.html', {'form': form})
+
+# Edit an existing activity
+@login_required
+def activity_edit(request, pk):
+    activity = get_object_or_404(Activity, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = ActivityForm(request.POST, instance=activity)
+        if form.is_valid():
+            form.save()
+            return redirect('activity_list')
+    else:
+        form = ActivityForm(instance=activity)
+    return render(request, 'routine/activity_form.html', {'form': form})
+
+# Delete an activity
+@login_required
+def activity_delete(request, pk):
+    activity = get_object_or_404(Activity, pk=pk, user=request.user)
+    activity.delete()
+    return redirect('activity_list')
+
+# Checklist: Add item
+@login_required
+def checklist_add(request, activity_id):
+    activity = get_object_or_404(Activity, pk=activity_id, user=request.user)
+    if request.method == 'POST':
+        form = ChecklistItemForm(request.POST)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.activity = activity
+            item.save()
+            return redirect('activity_list')
+    else:
+        form = ChecklistItemForm()
+    return render(request, 'routine/checklist_form.html', {'form': form, 'activity': activity})
+
+def activity_complete(request, pk):
+    activity = get_object_or_404(Activity, pk=pk, user=request.user)
+    activity.status = 'C'
+    activity.save()
+    return redirect('activity_list')
+>>>>>>> Stashed changes
