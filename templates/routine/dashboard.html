@@ -1,0 +1,78 @@
+{% extends 'routine/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h2 class="text-center mb-4">Welcome, {{ user.username }}!</h2>
+
+        <!-- Task Progress -->
+        <div class="progress mb-4" style="height: 25px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                 role="progressbar" 
+                 style="width: {{ progress_percentage }}%" 
+                 aria-valuenow="{{ progress_percentage }}" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+                {{ progress_percentage }}% Completed
+            </div>
+        </div>
+
+        <!-- Your Notes Section -->
+        <div class="mb-4">
+            <h4>Your Notes</h4>
+            <a href="{% url 'my_notes' %}" class="btn btn-secondary">View My Notes</a>
+        </div>
+
+        <!-- Your Tasks Section -->
+        <div class="mb-4">
+            <h4>Pending Tasks</h4>
+            {% if pending_tasks %}
+                <ul class="list-group">
+                    {% for task in pending_tasks %}
+                        <li class="list-group-item">
+                            <strong>{{ task.title }}</strong> - Due: {{ task.created_at|date:"Y-m-d" }}
+                            <br>
+                            <small>{{ task.description }}</small>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No pending tasks!</p>
+            {% endif %}
+        </div>
+
+        <div class="mb-4">
+            <h4>Completed Tasks</h4>
+            {% if completed_tasks %}
+                <ul class="list-group">
+                    {% for task in completed_tasks %}
+                        <li class="list-group-item">
+                            <strong>{{ task.title }}</strong> - Completed
+                            <br>
+                            <small>{{ task.description }}</small>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No completed tasks yet!</p>
+            {% endif %}
+        </div>
+
+        <!-- Class and Exam Routine Section -->
+        <div class="mb-4">
+            <h4>Class and Exam Routines</h4>
+            <a href="{% url 'class_routine_list' %}" class="btn btn-primary me-2">View Class Routines</a>
+            <a href="{% url 'exam_list' %}" class="btn btn-primary">View Exam Routines</a>
+        </div>
+
+        <!-- Profile Link -->
+        <div class="text-center mt-4">
+            <a href="{% url 'profile' %}" class="btn btn-success">
+                Go to Profile
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
