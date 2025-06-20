@@ -424,14 +424,105 @@ def complete_activity(request, pk):
     return redirect('activity_board')
 
 
+# @login_required
+# def edit_activity(request, pk):
+#     activity = get_object_or_404(Activity, pk=pk, user=request.user)  # ensure user owns it
+#     if request.method == 'POST':
+#         form = ActivityQuickForm(request.POST, instance=activity)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('activity_board')
+#     else:
+#         form = ActivityForm(instance=activity)
+#     return render(request, 'edit_activity.html', {'form': form})
+
+
+from datetime import timedelta
+from collections import defaultdict
+from django.utils import timezone
+
 @login_required
-def edit_activity(request, pk):
-    activity = get_object_or_404(Activity, pk=pk, user=request.user)  # ensure user owns it
-    if request.method == 'POST':
-        form = ActivityQuickForm(request.POST, instance=activity)
-        if form.is_valid():
-            form.save()
-            return redirect('activity_board')
+    # filter_range = request.GET.get('filter', 'all')
+    # now = timezone.now().date()
+
+    # if filter_range == 'weekly':
+    #     start_date = now - timedelta(days=7)
+    # elif filter_range == 'monthly':
+    #     start_date = now - timedelta(days=30)
+    # else:
+    #     start_date = None  # All time
+
+    # activities = Activity.objects.filter(user=request.user)
+    # if start_date:
+    #     activities = activities.filter(date__gte=start_date)
+
+    # tag_stats = defaultdict(lambda: {'total': 0, 'completed': 0})
+
+    # for activity in activities:
+    #     tags = activity.tags.split()
+    #     for tag in tags:
+    #         tag_stats[tag]['total'] += 1
+    #         if activity.completed:
+    #             tag_stats[tag]['completed'] += 1
+    #         if activity.status=='C':
+    #             tag_stats[tag]['completed'] += 1
+
+    # review_data = []
+    # for tag, data in tag_stats.items():
+    #     percent = (data['completed'] / data['total']) * 100 if data['total'] else 0
+    #     review_data.append({
+    #         'tag': tag,
+    #         'completed': data['completed'],
+    #         'total': data['total'],
+    #         'percent': round(percent, 1),
+    #     })
+
+    # return render(request, 'routine/activity_review.html', {
+    #     'review_data': review_data,
+    #     'filter_range': filter_range
+    # })@login_required
+def combined_review_summary(request):
+    filter_range = request.GET.get('filter', 'all')
+    now = timezone.now().date()
+
+    if filter_range == 'weekly':
+        start_date = now - timedelta(days=7)
+    elif filter_range == 'monthly':
+        start_date = now - timedelta(days=30)
     else:
-        form = ActivityForm(instance=activity)
-    return render(request, 'edit_activity.html', {'form': form})
+        start_date = None
+
+    activities = Activity.objects.filter(user=request.user)
+    if start_date:
+        activities = activities.filter(date__gte=start_date)
+
+    # --- TAG REVIEW ---
+    tag_stats = defaultdict(lambda: {'total': 0, 'completed': 0})
+    for activity in activities:
+        tags = activity.tags.split()
+        for tag in tags:
+            tag_stats[tag]['total'] += 1
+            if activity.completed:
+                tag_stats[tag]['completed'] += 1
+            if activity.status=='C':
+                tag_stats[tag]['completed'] += 1
+
+    tag_summary = {}  # use this name in the template
+    for tag, data in tag_stats.items():
+        percent = (data['completed'] / data['total']) * 100 if data['total'] else 0
+        tag_summary[tag] = {
+            'completed': data['completed'],
+            'total': data['total'],
+            'percent': round(percent, 1),
+        }
+
+    # --- SUMMARY GROUPED BY DATE ---
+    summary = defaultdict(list)
+    for activity in activities.order_by('date'):
+        summary[activity.date].append(activity)
+
+    return render(request, 'routine/activity_review.html', {
+        'filter_range': filter_range,
+        'tag_summary': tag_summary,
+        'summary': dict(summary),
+    })

@@ -47,10 +47,15 @@ urlpatterns = [
     path('activities/<int:pk>/delete/', views.activity_delete, name='activity_delete'),
     path('activities/<int:activity_id>/checklist/add/', views.checklist_add, name='checklist_add'),
     path('activities/<int:pk>/complete/', views.activity_complete, name='activity_complete'),
+   
     path('', views.activity_board, name='activity_board'),
     path('add/<str:category>/', views.add_activity, name='add_activity'),
     path('complete/<int:pk>/', views.complete_activity, name='complete_activity'),
     path('edit/<int:pk>/', views.activity_edit, name='activity_edit'),
+
+
+
+    path('activities/review/', views.combined_review_summary, name='activity_review'),
 
 ]
 
