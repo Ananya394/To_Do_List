@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
+  
 <head>
   <title>Activity Tracker</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -33,7 +34,11 @@
             <div class="flex justify-between">
               <span>{{ task.title }}</span>
               <div>
-                <a href="{% url 'complete_activity' task.pk %}" class="text-sm text-green-700">✔</a>
+                <form method="post" action="{% url 'complete_activity' task.pk %}" class="inline">
+                 {% csrf_token %}
+                    <button type="submit" class="text-sm text-green-700 hover:text-green-900" title="Mark as Complete">✔</button>
+                </form>
+
                 <a href="{% url 'activity_edit' task.pk %}" class="text-sm text-blue-700 ml-2">✎</a>
               </div>
             </div>

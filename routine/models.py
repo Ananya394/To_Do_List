@@ -196,7 +196,7 @@ class Activity(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     #category = models.CharField(max_length=50, blank=True)  # e.g., Study, Project, Exam
-    tags = models.CharField(max_length=100, blank=True)  # comma-separated or use a Tag model
+    tags = models.CharField(max_length=100, blank=True, default="#general")
     priority = models.CharField(max_length=1, choices=PRIORITY_CHOICES, default='M')
     #duration = models.DurationField(null=True, blank=True)
     #start_time = models.DateTimeField(null=True, blank=True)

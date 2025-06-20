@@ -1,0 +1,60 @@
+{% extends 'routine/base.html' %}
+{% block title %}Efficiency Report{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="text-center mb-4">📊 Efficiency by Tag</h2>
+
+  <!-- Filter Buttons -->
+  <div class="d-flex justify-content-center gap-3 mb-4">
+    <a href="?filter=all" class="btn btn-outline-dark {% if filter_range == 'all' %}active{% endif %}">All Time</a>
+    <a href="?filter=weekly" class="btn btn-outline-primary {% if filter_range == 'weekly' %}active{% endif %}">Last 7 Days</a>
+    <a href="?filter=monthly" class="btn btn-outline-success {% if filter_range == 'monthly' %}active{% endif %}">Last 30 Days</a>
+  </div>
+
+  <div class="card p-4 shadow-sm">
+    {% if labels %}
+      <canvas id="efficiencyPie" width="400" height="400" class="bg-white rounded border mx-auto d-block"></canvas>
+    {% else %}
+      <p class="text-center text-muted">No tag-based activities found.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('efficiencyPie');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: {{ labels|safe }},
+          datasets: [{
+            data: {{ percentages|safe }},
+            backgroundColor: [
+              '#4CAF50', '#2196F3', '#FFC107', '#FF5722',
+              '#9C27B0', '#00BCD4', '#8BC34A', '#FF9800'
+            ],
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' },
+            title: {
+              display: true,
+              text: 'Work Efficiency by Tag (%)',
+              font: { size: 18 }
+            }
+          }
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

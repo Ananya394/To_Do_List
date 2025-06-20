@@ -104,7 +104,11 @@ class ActivityForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
             'reminder_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'description': forms.Textarea(attrs={'rows': 3}),
-            'tags': forms.TextInput(attrs={'placeholder': 'e.g. #study #revision'}),
+            #'tags': forms.TextInput(attrs={'placeholder': 'e.g. #study #revision'}),
+            'tags': forms.TextInput(attrs={'placeholder': 'e.g. #study #revision',
+                    'value': '#general'  # Default tag shown in form
+            }),
+
         }
 
 

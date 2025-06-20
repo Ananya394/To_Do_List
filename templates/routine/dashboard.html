@@ -12,7 +12,6 @@
            <a href="{% url 'activity_list' %}" class="btn btn-secondary">ADD TASK</a>
            <a href="{% url 'activity_board' %}" class="btn btn-outline-primary">📋 Show Board  </a>
            <a href="{% url 'activity_review' %}" class="btn btn-info">📊 Review</a>  <!-- New Button -->
-           <a href="{% url 'calendar_view' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Daily/Weekly Summary</a>
 
 
         </div>
@@ -78,6 +77,13 @@
             <a href="{% url 'exam_list' %}" class="btn btn-primary">View Exam Routines</a>
         </div>
 
+        <!-- REport SEction Section -->
+        <div class="d-flex justify-content-center gap-3 mb-4">
+    <a href="{% url 'efficiency_report' %}" class="btn btn-outline-info">
+        📈 Report
+    </a>
+</div>
+        
         <!-- Profile Link -->
         <div class="text-center mt-4">
             <a href="{% url 'profile' %}" class="btn btn-success">

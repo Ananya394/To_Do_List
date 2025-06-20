@@ -274,8 +274,9 @@ def activity_list(request):
     today = date.today()
 
     for activity in activities:
-        activity.is_completed = activity.status == "C"
-        days_left = (activity.date - today).days
+        activity.is_completed = activity.completed
+        if activity.date:
+         days_left = (activity.date - today).days
 
         # For width (how much of the row should be filled)
         if days_left >= 7:
@@ -307,8 +308,12 @@ def activity_list(request):
 def activity_create(request):
     if request.method == 'POST':
         form = ActivityForm(request.POST)
+       
         if form.is_valid():
-            activity = form.save(commit=False)
+            activity = form.save(commit=False) 
+
+            if not activity.tags.strip():
+             activity.tags = "#general"
             activity.user = request.user
             activity.save()
             return redirect('activity_list')
@@ -354,11 +359,11 @@ def checklist_add(request, activity_id):
         form = ChecklistItemForm()
     return render(request, 'routine/checklist_form.html', {'form': form, 'activity': activity})
 
-def activity_complete(request, pk):
-    activity = get_object_or_404(Activity, pk=pk, user=request.user)
-    activity.status = 'C'
-    activity.save()
-    return redirect('activity_list')
+# def activity_complete(request, pk):
+#     activity = get_object_or_404(Activity, pk=pk, user=request.user)
+#     activity.status = 'C'
+#     activity.save()
+#     return redirect('activity_list')
 
 
 
@@ -410,7 +415,10 @@ def add_activity(request, category):
             elif category == 'later':
                 activity.date = date.today() + timedelta(days=10)
             else:
-                activity.date = None            
+                activity.date = None       
+
+            if not activity.tags.strip():
+                activity.tags = "#general"    
             activity.user = request.user  # always assign user
             activity.save()
     return redirect('activity_board')
@@ -421,7 +429,7 @@ def complete_activity(request, pk):
     activity = get_object_or_404(Activity, pk=pk, user=request.user)  # ensure user owns it
     activity.completed = True
     activity.save()
-    return redirect('activity_board')
+    return redirect(request.META.get('HTTP_REFERER', 'activity_board'))
 
 
 # @login_required
@@ -504,8 +512,8 @@ def combined_review_summary(request):
             tag_stats[tag]['total'] += 1
             if activity.completed:
                 tag_stats[tag]['completed'] += 1
-            if activity.status=='C':
-                tag_stats[tag]['completed'] += 1
+            # if activity.status=='C':
+            #     tag_stats[tag]['completed'] += 1
 
     tag_summary = {}  # use this name in the template
     for tag, data in tag_stats.items():
@@ -526,3 +534,46 @@ def combined_review_summary(request):
         'tag_summary': tag_summary,
         'summary': dict(summary),
     })
+import json
+
+@login_required
+def efficiency_report(request):
+    now = timezone.now().date()
+    filter_range = request.GET.get('filter', 'all')
+
+    if filter_range == 'weekly':
+        start_date = now - timedelta(days=7)
+    elif filter_range == 'monthly':
+        start_date = now - timedelta(days=30)
+    else:
+        start_date = None
+
+    activities = Activity.objects.filter(user=request.user)
+    if start_date:
+        activities = activities.filter(date__gte=start_date)
+
+    tag_stats = defaultdict(lambda: {'total': 0, 'completed': 0})
+    for activity in activities:
+        tags = activity.tags.split()
+        for tag in tags:
+            tag_stats[tag]['total'] += 1
+            if activity.completed:
+                tag_stats[tag]['completed'] += 1
+            # if activity.status=='C':
+            #     tag_stats[tag]['completed'] += 1
+
+    labels = []
+    percentages = []
+    for tag, data in tag_stats.items():
+        if data['total'] == 0:
+            continue
+        percent = round((data['completed'] / data['total']) * 100, 1)
+        labels.append(tag)
+        percentages.append(percent)
+
+    context = {
+        'labels': labels,
+        'percentages': percentages,
+        'filter_range': filter_range,
+    }
+    return render(request, 'routine/efficiency_report.html', context)
