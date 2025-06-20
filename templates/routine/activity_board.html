@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Activity Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="p-4 bg-gray-100">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    {% for key, tasks in columns.items %}
+      <div class="p-4 rounded-lg shadow 
+        {% if key == 'today' %}bg-blue-100
+        {% elif key == 'next_week' %}bg-yellow-100
+        {% elif key == 'later' %}bg-green-100
+        {% else %}bg-gray-200{% endif %}">
+        
+        <h2 class="text-xl font-bold mb-2">
+          {% if key == 'next_week' %}Next Week
+          {% elif key == 'no_date' %}No Due Date
+          {% else %}{{ key|title }}{% endif %}
+        </h2>
+
+        <!-- Quick Add Form -->
+        <form method="post" action="{% url 'add_activity' key %}" class="mb-3">
+          {% csrf_token %}
+          <input type="text" name="title" placeholder="New Task" class="w-full p-1 rounded border" required>
+          <button type="submit" class="w-full mt-1 bg-blue-500 text-white rounded px-2 py-1">Add Task</button>
+        </form>
+
+        <!-- Task List -->
+        {% for task in tasks %}
+          <div class="bg-white p-2 rounded shadow mb-2 {% if task.completed %}bg-green-200{% endif %}">
+            <div class="flex justify-between">
+              <span>{{ task.title }}</span>
+              <div>
+                <a href="{% url 'complete_activity' task.pk %}" class="text-sm text-green-700">✔</a>
+                <a href="{% url 'activity_edit' task.pk %}" class="text-sm text-blue-700 ml-2">✎</a>
+              </div>
+            </div>
+            {% if task.due_date %}
+              <div class="text-xs text-gray-500">Due: {{ task.due_date }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+      </div>
+    {% endfor %}
+  </div>
+</body>
+</html>

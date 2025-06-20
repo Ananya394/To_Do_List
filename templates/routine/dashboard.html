@@ -7,6 +7,14 @@
     <div class="card shadow p-4">
         <h2 class="text-center mb-4">Welcome, {{ user.username }}!</h2>
 
+        <!-- ✅ Add Buttons for Task Actions -->
+        <div class="d-flex justify-content-center gap-3 mb-4">
+           <a href="{% url 'activity_list' %}" class="btn btn-secondary">ADD TASK</a>
+            <a href="{% url 'activity_board' %}" class="btn btn-outline-primary">
+                📋 Show Board
+            </a>
+        </div>
+
         <!-- Task Progress -->
         <div class="progress mb-4" style="height: 25px;">
             <div class="progress-bar progress-bar-striped progress-bar-animated" 
