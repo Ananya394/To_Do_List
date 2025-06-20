@@ -7,7 +7,7 @@ from .models import UserProfile
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['bio', 'profile_picture']  # Allow the user to update bio and profile picture
+        fields = ['bio', 'profile_picture']  
 
 # class RegistrationForm(forms.ModelForm):
 #     password = forms.CharField(widget=forms.PasswordInput())
@@ -94,3 +94,54 @@ class MyNoteForm(forms.ModelForm):
         fields = ['title', 'description', 'attachment', 'memory_prompt', 'attended', 'priority', 'due_date']
 
     # You can add any custom validation or styling here if needed
+
+
+from django import forms
+from .models import Activity, ChecklistItem
+
+class ActivityForm(forms.ModelForm):
+    class Meta:
+        model = Activity
+        fields = [
+            'title',
+            'description',
+            #'category',
+            'tags',
+            'priority',
+            #'duration',
+            #'start_time',
+            #'end_time',
+            'date',
+            'status',
+            'reminder_time',
+        ]
+        widgets = {
+            'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'end_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'date': forms.DateInput(attrs={'type': 'date'}),
+            'reminder_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'description': forms.Textarea(attrs={'rows': 3}),
+            #'tags': forms.TextInput(attrs={'placeholder': 'e.g. #study #revision'}),
+            'tags': forms.TextInput(attrs={'placeholder': 'e.g. #study #revision',
+                    'value': '#general'  # Default tag shown in form
+            }),
+
+        }
+
+
+class ChecklistItemForm(forms.ModelForm):
+    class Meta:
+        model = ChecklistItem
+        fields = ['description', 'is_done']
+        widgets = {
+            'description': forms.TextInput(attrs={'placeholder': 'Checklist item'}),
+        }
+
+
+class ActivityQuickForm(forms.ModelForm):  # used for board-style quick add
+    class Meta:
+        model = Activity
+        fields = ['title', 'date']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }

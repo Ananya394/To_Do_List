@@ -57,14 +57,27 @@ from django.contrib.auth.models import User
 import datetime
 
 # UserProfile model
+# class UserProfile(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)  # Linking the profile to the user
+#     bio = models.TextField(null=True, blank=True)  # Allow users to add a bio
+#     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)  # Profile picture
+
+#     def __str__(self):
+#         return self.user.username  # Return the user's username for easy identification
+
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Linking the profile to the user
-    bio = models.TextField(null=True, blank=True)  # Allow users to add a bio
-    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)  # Profile picture
+    ROLE_CHOICES = (
+        ('student', 'Student'),
+        ('admin', 'Admin'),
+    )
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')  # 👈 Add this line
+    bio = models.TextField(null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
 
     def __str__(self):
-        return self.user.username  # Return the user's username for easy identification
-
+        return f"{self.user.username} ({self.role})"
 # ClassRoutine model
 # class ClassRoutine(models.Model):
 #     subject = models.CharField(max_length=100)
@@ -144,8 +157,8 @@ class ClassRoutine(models.Model):
     day = models.CharField(max_length=10, choices=[('Sunday', 'Sunday'), ('Monday', 'Monday'), ('Tuesday', 'Tuesday'),
                                                    ('Wednesday', 'Wednesday'), ('Thursday', 'Thursday'),
                                                    ('Friday', 'Friday'), ('Saturday', 'Saturday')])
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time =models.TimeField(null=True, blank=True)
+    end_time =models.TimeField(null=True, blank=True)
     location = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
@@ -162,3 +175,45 @@ class ExamRoutine(models.Model):
 
     def __str__(self):
         return f"{self.course_name} on {self.exam_date}"
+
+
+from django.db import models
+from django.contrib.auth.models import User
+
+class Activity(models.Model):
+    PRIORITY_CHOICES = [
+        ('H', 'High'),
+        ('M', 'Medium'),
+        ('L', 'Low'),
+    ]
+
+    STATUS_CHOICES = [
+        ('P', 'Pending'),
+        ('C', 'Completed'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    #category = models.CharField(max_length=50, blank=True)  # e.g., Study, Project, Exam
+    tags = models.CharField(max_length=100, blank=True, default="#general")
+    priority = models.CharField(max_length=1, choices=PRIORITY_CHOICES, default='M')
+    #duration = models.DurationField(null=True, blank=True)
+    #start_time = models.DateTimeField(null=True, blank=True)
+    #end_time = models.DateTimeField()
+    date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='P')
+    reminder_time = models.DateTimeField(null=True, blank=True)
+    completed = models.BooleanField(default=False)
+    #due_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.title
+class ChecklistItem(models.Model):
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name='checklist_items')
+    description = models.CharField(max_length=255)
+    is_done = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.description} - {'Done' if self.is_done else 'Pending'}"
+

@@ -7,6 +7,15 @@
     <div class="card shadow p-4">
         <h2 class="text-center mb-4">Welcome, {{ user.username }}!</h2>
 
+        <!-- ✅ Add Buttons for Task Actions -->
+        <div class="d-flex justify-content-center gap-3 mb-4">
+           <a href="{% url 'activity_list' %}" class="btn btn-secondary">ADD TASK</a>
+           <a href="{% url 'activity_board' %}" class="btn btn-outline-primary">📋 Show Board  </a>
+           <a href="{% url 'activity_review' %}" class="btn btn-info">📊 Review</a>  <!-- New Button -->
+
+
+        </div>
+
         <!-- Task Progress -->
         <div class="progress mb-4" style="height: 25px;">
             <div class="progress-bar progress-bar-striped progress-bar-animated" 
@@ -19,6 +28,7 @@
             </div>
         </div>
 
+        
         <!-- Your Notes Section -->
         <div class="mb-4">
             <h4>Your Notes</h4>
@@ -67,6 +77,13 @@
             <a href="{% url 'exam_list' %}" class="btn btn-primary">View Exam Routines</a>
         </div>
 
+        <!-- REport SEction Section -->
+        <div class="d-flex justify-content-center gap-3 mb-4">
+    <a href="{% url 'efficiency_report' %}" class="btn btn-outline-info">
+        📈 Report
+    </a>
+</div>
+        
         <!-- Profile Link -->
         <div class="text-center mt-4">
             <a href="{% url 'profile' %}" class="btn btn-success">

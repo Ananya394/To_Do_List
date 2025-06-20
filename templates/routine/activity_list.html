@@ -1,0 +1,73 @@
+{% extends 'routine/base.html' %}
+{% block content %}
+<div class="flex justify-center mt-10">
+  <div class="w-full max-w-xl space-y-4">
+
+    <!-- Add Button -->
+    <div class="text-center">
+      <a href="{% url 'activity_create' %}" class="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">
+        + Add Activity
+      </a>
+    </div>
+
+    <!-- Activities -->
+    {% for activity in activities %}
+    <div class="relative overflow-hidden rounded shadow border 
+        {% if activity.is_completed %}border-green-500 bg-green-100{% else %}bg-white{% endif %}">
+
+
+     {% if not activity.is_completed %}<!-- Add this inside your activity row -->
+{% if activity.days_left < 0 %}
+  <span class=" text-blue-700 font-semibold">⚠️ Overdue</span>
+{% elif activity.days_left == 0 %}
+  <span class="text-orange-500 font-semibold">⏳ Due Today</span>
+{% elif activity.days_left > 0 %}
+  <span class="text-yellow-600 font-semibold">🟡 {{ activity.days_left_text }}</span>
+{% endif %}
+<div class="absolute top-0 left-0 h-full z-0 transition-all duration-500"
+     style="
+        width: {{ activity.urgency_width }}%;
+        background:
+            {% if activity.urgency_color == 'green' %}
+                linear-gradient(to right,rgb(182, 230, 193), transparent)
+            {% elif activity.urgency_color == 'yellow' %}
+                linear-gradient(to right,rgb(255, 254, 205), transparent)
+            {% elif activity.urgency_color == 'orange' %}
+                linear-gradient(to right,rgb(242, 216, 176), transparent)
+            {% elif activity.urgency_color == 'red' %}
+                linear-gradient(to right,rgb(245, 203, 206), transparent)
+            {% endif %};
+     ">
+</div>
+{% endif %}
+
+
+
+      <div class="relative z-10 flex justify-between items-center px-4 py-3">
+        <!-- Title -->
+        <div class="font-semibold text-gray-800 w-2/3 truncate">
+          {{ activity.title }}
+        </div>
+
+        <!-- Actions -->
+        <div class="flex space-x-2">
+          {% if not activity.is_completed %}
+          <form method="post" action="{% url 'complete_activity' activity.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="bg-green-500 text-white text-sm px-3 py-1 rounded hover:bg-green-600">Complete</button>
+          </form>
+          {% else %}
+          <span class="text-green-700 font-bold text-sm">✓ Done</span>
+          {% endif %}
+          <a href="{% url 'activity_edit' activity.pk %}" class="bg-gray-300 text-sm text-gray-800 px-3 py-1 rounded hover:bg-gray-400">Details</a>
+          <!-- Days Left Badge -->
+
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-center text-gray-500">No activities yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
