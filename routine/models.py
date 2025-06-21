@@ -55,6 +55,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import datetime
+from django.utils import timezone
 
 # UserProfile model
 # class UserProfile(models.Model):
@@ -206,7 +207,8 @@ class Activity(models.Model):
     reminder_time = models.DateTimeField(null=True, blank=True)
     completed = models.BooleanField(default=False)
     #due_date = models.DateField(null=True, blank=True)
-
+    created_at = models.DateField(default=timezone.now)
+    completed_at = models.DateField(null=True, blank=True)
     def __str__(self):
         return self.title
 class ChecklistItem(models.Model):

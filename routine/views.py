@@ -428,6 +428,9 @@ def add_activity(request, category):
 def complete_activity(request, pk):
     activity = get_object_or_404(Activity, pk=pk, user=request.user)  # ensure user owns it
     activity.completed = True
+    if activity.completed:
+     activity.completed_at = timezone.now()
+    
     activity.save()
     return redirect(request.META.get('HTTP_REFERER', 'activity_board'))
 
@@ -512,8 +515,7 @@ def combined_review_summary(request):
             tag_stats[tag]['total'] += 1
             if activity.completed:
                 tag_stats[tag]['completed'] += 1
-            # if activity.status=='C':
-            #     tag_stats[tag]['completed'] += 1
+        
 
     tag_summary = {}  # use this name in the template
     for tag, data in tag_stats.items():
@@ -534,46 +536,103 @@ def combined_review_summary(request):
         'tag_summary': tag_summary,
         'summary': dict(summary),
     })
-import json
 
-@login_required
+from datetime import timedelta
+from django.utils import timezone
+from django.shortcuts import render
+from .models import Activity
+
+from collections import defaultdict
+
+from collections import defaultdict
+from datetime import timedelta
+from django.utils import timezone
+from django.shortcuts import render
+from .models import Activity
+
 def efficiency_report(request):
-    now = timezone.now().date()
-    filter_range = request.GET.get('filter', 'all')
+    today = timezone.now().date()
+    dates = [today - timedelta(days=i) for i in range(6, -1, -1)]  # Last 7 days
 
-    if filter_range == 'weekly':
-        start_date = now - timedelta(days=7)
-    elif filter_range == 'monthly':
-        start_date = now - timedelta(days=30)
-    else:
-        start_date = None
+    labels = [d.strftime("%b %d") for d in dates]
+    efficiency = []
 
-    activities = Activity.objects.filter(user=request.user)
-    if start_date:
-        activities = activities.filter(date__gte=start_date)
+    user_activities = Activity.objects.filter(user=request.user)
 
+    for d in dates:
+        tasks = user_activities.filter(date=d)
+        total = tasks.count()
+        completed = tasks.filter(completed=True).count()
+        percent = round((completed / total) * 100, 2) if total > 0 else 0
+        efficiency.append(percent)
+
+    # === TAG SUMMARY ===
     tag_stats = defaultdict(lambda: {'total': 0, 'completed': 0})
-    for activity in activities:
+    tag_priority_stats = defaultdict(lambda: {
+        'H': {'total': 0, 'completed': 0},
+        'M': {'total': 0, 'completed': 0},
+        'L': {'total': 0, 'completed': 0}
+    })
+
+    for activity in user_activities:
         tags = activity.tags.split()
         for tag in tags:
             tag_stats[tag]['total'] += 1
             if activity.completed:
                 tag_stats[tag]['completed'] += 1
-            # if activity.status=='C':
-            #     tag_stats[tag]['completed'] += 1
 
-    labels = []
-    percentages = []
+            # Track by priority
+            priority = activity.priority
+            tag_priority_stats[tag][priority]['total'] += 1
+            if activity.completed:
+                tag_priority_stats[tag][priority]['completed'] += 1
+
+    # Clean tag summary
+    tag_summary = {}
     for tag, data in tag_stats.items():
-        if data['total'] == 0:
-            continue
-        percent = round((data['completed'] / data['total']) * 100, 1)
-        labels.append(tag)
-        percentages.append(percent)
+        percent = (data['completed'] / data['total']) * 100 if data['total'] else 0
+        tag_summary[tag] = {
+            'completed': data['completed'],
+            'total': data['total'],
+            'percent': round(percent, 1),
+        }
 
+    # Tag-based by priority
+    tag_priority_summary = {}
+    for tag, levels in tag_priority_stats.items():
+        tag_priority_summary[tag] = {}
+        for level in ['H', 'M', 'L']:
+            total = levels[level]['total']
+            completed = levels[level]['completed']
+            percent = (completed / total) * 100 if total else 0
+            tag_priority_summary[tag][level] = {
+                'percent': round(percent, 1)
+            }
+
+    # Overall summary by priority
+    priority_totals = {'H': {'completed': 0, 'total': 0},
+                       'M': {'completed': 0, 'total': 0},
+                       'L': {'completed': 0, 'total': 0}}
+
+    for tag_data in tag_priority_stats.values():
+        for level in ['H', 'M', 'L']:
+            priority_totals[level]['completed'] += tag_data[level]['completed']
+            priority_totals[level]['total'] += tag_data[level]['total']
+
+    priority_efficiency = {}
+    for level in ['H', 'M', 'L']:
+        total = priority_totals[level]['total']
+        completed = priority_totals[level]['completed']
+        percent = (completed / total) * 100 if total else 0
+        priority_efficiency[level] = round(percent, 1)
+
+    # Final context
     context = {
         'labels': labels,
-        'percentages': percentages,
-        'filter_range': filter_range,
+        'efficiency': efficiency,
+        'tag_summary': dict(tag_summary),
+        'tag_priority_summary': tag_priority_summary,
+        'priority_efficiency': priority_efficiency,
     }
+
     return render(request, 'routine/efficiency_report.html', context)
