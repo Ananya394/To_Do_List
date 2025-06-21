@@ -18,6 +18,7 @@ urlpatterns = [
     
     # Dashboard
     path('dashboard/', views.dashboard, name='dashboard'), 
+    path('home/', views.home, name='home'),
     
     # Class Routine Views
     path('classes/', views.class_routine_list, name='class_routine_list'),

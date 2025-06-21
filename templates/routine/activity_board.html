@@ -1,55 +1,75 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
-  
 <head>
   <title>Activity Tracker</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="p-4 bg-gray-100">
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-    {% for key, tasks in columns.items %}
-      <div class="p-4 rounded-lg shadow 
-        {% if key == 'today' %}bg-blue-100
-        {% elif key == 'next_week' %}bg-yellow-100
-        {% elif key == 'later' %}bg-green-100
-        {% else %}bg-gray-200{% endif %}">
+<body class="bg-gray-100 py-6">
+  <div class="max-w-7xl mx-auto px-4">
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">📋 Activity Board</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {% for key, tasks in columns.items %}
+      <div class="rounded-lg shadow bg-white border border-gray-200 flex flex-col p-4">
         
-        <h2 class="text-xl font-bold mb-2">
-          {% if key == 'next_week' %}Next Week
-          {% elif key == 'no_date' %}No Due Date
-          {% else %}{{ key|title }}{% endif %}
+        <!-- Column Title -->
+        <h2 class="text-lg font-semibold mb-4 text-center text-gray-700 border-b pb-2">
+          {% if key == 'today' %}
+             Today
+          {% elif key == 'next_week' %}
+             Next Week
+          {% elif key == 'later' %}
+             Later
+          {% else %}
+             No Due Date
+          {% endif %}
         </h2>
 
         <!-- Quick Add Form -->
-        <form method="post" action="{% url 'add_activity' key %}" class="mb-3">
+        <form method="post" action="{% url 'add_activity' key %}" class="mb-4">
           {% csrf_token %}
-          <input type="text" name="title" placeholder="New Task" class="w-full p-1 rounded border" required>
-          <button type="submit" class="w-full mt-1 bg-blue-500 text-white rounded px-2 py-1">Add Task</button>
+          <input type="text" name="title" placeholder="Add new task..." 
+                 class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                 required>
+          <button type="submit" 
+                  class="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded">
+            + Add Task
+          </button>
         </form>
 
         <!-- Task List -->
-        {% for task in tasks %}
-          <div class="bg-white p-2 rounded shadow mb-2 {% if task.completed %}bg-green-200{% endif %}">
-            <div class="flex justify-between">
-              <span>{{ task.title }}</span>
-              <div>
-                <form method="post" action="{% url 'complete_activity' task.pk %}" class="inline">
-                 {% csrf_token %}
-                    <button type="submit" class="text-sm text-green-700 hover:text-green-900" title="Mark as Complete">✔</button>
-                </form>
+        <div class="space-y-3 overflow-y-auto max-h-[60vh]">
+          {% for task in tasks %}
+          <div class="bg-gray-50 hover:bg-gray-100 transition p-3 rounded border 
+                      {% if task.completed %}border-green-400 bg-green-100{% else %}border-gray-300{% endif %}">
+            <div class="flex justify-between items-center">
+              <div class="flex-1">
+                <p class="font-medium text-gray-800 truncate">
+                  {{ task.title }}
+                </p>
+                {% if task.due_date %}
+                <p class="text-xs text-gray-500">Due: {{ task.due_date }}</p>
+                {% endif %}
+              </div>
 
-                <a href="{% url 'activity_edit' task.pk %}" class="text-sm text-blue-700 ml-2">✎</a>
+              <div class="flex items-center gap-2 ml-2">
+                <form method="post" action="{% url 'complete_activity' task.pk %}">
+                  {% csrf_token %}
+                  <button title="Mark as complete" class="text-green-600 hover:text-green-800 text-lg">✔</button>
+                </form>
+                <a href="{% url 'activity_edit' task.pk %}" title="Edit" class="text-blue-600 hover:text-blue-800 text-lg">✎</a>
               </div>
             </div>
-            {% if task.due_date %}
-              <div class="text-xs text-gray-500">Due: {{ task.due_date }}</div>
-            {% endif %}
           </div>
-        {% endfor %}
+          {% empty %}
+          <p class="text-sm text-gray-400 italic text-center">No tasks</p>
+          {% endfor %}
+        </div>
 
       </div>
-    {% endfor %}
+      {% endfor %}
+    </div>
   </div>
 </body>
 </html>

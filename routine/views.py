@@ -8,7 +8,8 @@ from django.contrib.auth.decorators import login_required
 from .models import UserProfile
 from .forms import UserProfileForm
 
-
+def home(request):
+   return render(request, 'routine/home.html')
 
 @login_required
 def class_routine_list(request):
@@ -268,39 +269,72 @@ def get_urgency_color(days_left):
     else:
         return "red"
 
+
 @login_required
 def activity_list(request):
-    activities = Activity.objects.filter(user=request.user).order_by('date')
     today = date.today()
+    priority_filter = request.GET.get('priority', '')
+    date_filter = request.GET.get('date', '')
+
+    activities = Activity.objects.filter(user=request.user).order_by('date')
+
+    # Apply filters if given (priority and date)
+    if priority_filter:
+        activities = activities.filter(priority=priority_filter)
+    if date_filter:
+        activities = activities.filter(date=date_filter)
+
+    pending = []
+    overdue = []
+    completed = []
 
     for activity in activities:
         activity.is_completed = activity.completed
-        if activity.date:
-         days_left = (activity.date - today).days
+        days_left = (activity.date - today).days if activity.date else None
 
-        # For width (how much of the row should be filled)
-        if days_left >= 7:
+        if days_left is not None:
+            # Urgency width & color logic
+            if days_left >= 7:
+                activity.urgency_width = 0
+            elif days_left <= 0:
+                activity.urgency_width = 100
+            else:
+                activity.urgency_width = int(((7 - days_left) / 7) * 100)
+
+            activity.urgency_color = get_urgency_color(days_left)
+
+            if days_left < 0:
+                activity.days_left_text = f"{abs(days_left)} day(s) overdue"
+            elif days_left == 0:
+                activity.days_left_text = "Due today"
+            else:
+                activity.days_left_text = f"{days_left} day(s) left"
+        else:
             activity.urgency_width = 0
-        elif days_left <= 0:
-            activity.urgency_width = 100
+            activity.urgency_color = "green"
+            activity.days_left_text = "No due date"
+
+        activity.days_left = days_left
+
+        if activity.completed:
+            completed.append(activity)
         else:
-            activity.urgency_width = int(((7 - days_left) / 7) * 100)
+            if days_left is not None and days_left < 0:
+                overdue.append(activity)
+            else:
+                pending.append(activity)
 
-        # For color (how critical it is)
-        activity.urgency_color = get_urgency_color(days_left)
+    context = {
+        'pending': pending,
+        'overdue': overdue,
+        'completed': completed,
+        'priority_filter': priority_filter,
+        'date_filter': date_filter,
+    }
 
-        if days_left < 0:
-            activity.days_left_text = f"{abs(days_left)} day(s) overdue"
-        elif days_left == 0:
-            activity.days_left_text = "Due today"
-        else:
-            activity.days_left_text = f"{days_left} day(s) left"
+    return render(request, 'routine/activity_list.html', context)
 
-        activity.days_left = (activity.date - today).days
 
-    return render(request, 'routine/activity_list.html', {
-        'activities': activities,
-    })
 
 
 # Add a new activity
