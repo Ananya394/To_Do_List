@@ -1,95 +1,470 @@
-{% extends 'routine/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-{% block title %}Dashboard{% endblock %}
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f7fc;
+      color: #333;
+      line-height: 1.6;
+    }
 
-{% block content %}
-<div class="container mt-5">
-    <div class="card shadow p-4">
-        <h2 class="text-center mb-4">Welcome, {{ user.username }}!</h2>
+    header {
+      background: linear-gradient(90deg, rgb(90, 130, 126), rgb(45, 60, 56));
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-        <!-- ✅ Add Buttons for Task Actions -->
-        <div class="d-flex justify-content-center gap-3 mb-4">
-           <a href="{% url 'activity_list' %}" class="btn btn-secondary">ADD TASK</a>
-           <a href="{% url 'activity_board' %}" class="btn btn-outline-primary">📋 Show Board  </a>
-           <a href="{% url 'activity_review' %}" class="btn btn-info">📊 Review</a>  <!-- New Button -->
+    header .logo {
+      font-size: 28px;
+      font-weight: bold;
+    }
 
+    header nav a {
+      color: white;
+      margin: 0 20px;
+      text-decoration: none;
+      font-size: 16px;
+      transition: color 0.3s ease;
+    }
 
+    header nav a:hover {
+      color: #dcdcdc;
+    }
+
+    aside {
+      width: 250px;
+      background-color: rgb(45, 60, 56);
+      color: white;
+      padding: 40px 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      box-shadow: 2px 0px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    aside ul {
+      list-style-type: none;
+    }
+
+    aside ul li {
+      margin-bottom: 20px;
+    }
+
+    aside ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      display: block;
+      padding: 10px 20px;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+
+    aside ul li a:hover {
+      background-color: #34495e;
+    }
+
+    .container {
+      margin-left: 250px;
+      padding: 80px 20px 20px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    main h1 {
+      font-size: 32px;
+      color: rgb(3, 41, 4);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .task-overview {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    .task-overview h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .overview-stats {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+    }
+
+    .overview-stats p {
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .progress {
+      height: 20px;
+      border-radius: 10px;
+      background-color: #e6e6e6;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #4caf50, rgb(7, 59, 10));
+      text-align: center;
+      color: white;
+      line-height: 20px;
+      font-size: 14px;
+    }
+
+    section {
+      margin-bottom: 30px;
+    }
+
+    section h2 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .activity-item {
+      padding: 10px 20px;
+      margin: 10px 0 ;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      color: black; 
+      display: flex;
+      flex-wrap: wrap;
+      overflow: hidden;
+      justify-content: flex-start;
+      align-items: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .activity-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .activity-details {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      margin-right: 15px;
+      word-wrap: break-word; /* Allow long words to break */
+      overflow-wrap: break-word; 
+    }
+
+    .priority-dot {
+      width: 50px;              /* Increase size for text */
+      height: 20px;
+      border-radius: 10%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;             /* White text */
+      font-size: 13px;   
+      margin-right: 15px; 
+      margin-top: 5px;      /* Adjust text size */
+       /* margin:-12px 0 10px 0px;*/
+    }
+
+    .activity-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: flex-start; /* Adjust this line */
+    }
+
+    .show-details-btn {
+      padding: 8px 16px;
+      background-color: #1e90ff;
+      color: white;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border: none;
+      min-width: 100px;
+      text-align: center;
+    }
+
+    .show-details-btn:hover {
+      background-color: #1c86ee;
+    }
+
+    .activity-item .btn {
+      padding: 8px 16px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+      text-decoration: none;
+      min-width: 100px;
+      text-align: center;
+    }
+
+    .activity-item .btn:hover {
+      background-color: #45a049;
+    }
+
+    .details {
+      display: none;
+      margin: 10px 0 20px 50px;
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      font-size: 14px;
+    }
+
+    .details p {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .details h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .details .label {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+
+    .details .close-btn {
+      background-color: #e74c3c;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border: none;
+      display: inline-block;
+      margin-top: 20px;
+    }
+
+    .details .close-btn:hover {
+      background-color: #c0392b;
+    }
+
+    #delete-selected-btn-pending,
+    #delete-selected-btn-completed {
+      background-color: #e74c3c;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border: none;
+    }
+
+    #delete-selected-btn-pending:disabled,
+    #delete-selected-btn-completed:disabled {
+      background-color: #ddd;
+      cursor: not-allowed;
+    }
+
+    #delete-selected-btn-pending:hover:enabled,
+    #delete-selected-btn-completed:hover:enabled {
+      background-color: #c0392b;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #333;
+      color: white;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">Do It</div>
+    <nav>
+      <a href="{% url 'my_notes' %}">My Notes</a>
+      <a href="{% url 'profile' %}">Profile</a>
+      <a href="{% url 'logout' %}?next={{ request.path }}">Logout</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <aside>
+      <ul>
+        
+        <li><a href="{% url 'class_routine_list' %}">Class Routines</a></li>
+        <li><a href="{% url 'exam_list' %}">Exam Routines</a></li>
+        <li><a href="{% url 'activity_board' %}">Activity Board</a></li>
+        <li><a href="{% url 'activity_review' %}">Activity Review</a></li>
+        <li><a href="{% url 'efficiency_report' %}">Efficiency Report</a></li>
+        <li><a href="{% url 'activity_list' %}">Add New Activity</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <h2 style="font-size: 36px;">Welcome, {{ user.username }}!</h2>
+
+      <div class="task-overview">
+        <h2>Task Overview</h2>
+        <div class="overview-stats">
+          <p>Total Tasks: {{ activities.count }}</p>
+          <p>Completed: {{ completed_activities.count }}</p>
+          <p>Pending: {{ pending_activities.count }}</p>
         </div>
+        <div class="progress">
+          <div class="progress-bar" style="width: {{ progress_percentage }}%;">
+            {{ progress_percentage }}% Completed
+          </div>
+        </div>
+      </div>
 
-        <!-- Task Progress -->
-        <div class="progress mb-4" style="height: 25px;">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                 role="progressbar" 
-                 style="width: {{ progress_percentage }}%" 
-                 aria-valuenow="{{ progress_percentage }}" 
-                 aria-valuemin="0" 
-                 aria-valuemax="100">
-                {{ progress_percentage }}% Completed
+      <!-- Pending Activities -->
+      <section>
+        <h2>Pending Activities</h2>
+        <form method="POST" action="{% url 'delete_selected_activities' %}">
+          {% csrf_token %}
+          {% for activity in pending_activities %}
+          <div class="activity-item">
+            <input type="checkbox" name="selected_activities" value="{{ activity.pk }}" class="activity-checkbox pending">
+            <div class="activity-details">
+              <strong>{{ activity.title }}</strong>
+              <div class="priority-dot" style="background-color: {{ activity.priority_color }}">
+                {{ activity.get_priority_display }}
+              </div>
             </div>
-        </div>
+            <div class="activity-actions">
+              <a href="{% url 'complete_activity' pk=activity.pk %}" class="btn btn-success btn-sm">Mark as Completed</a>
+              <button type="button" class="show-details-btn" onclick="toggleDetails('{{ activity.pk }}')">Details</button>
+              <a href="{% url 'activity_edit' pk=activity.pk %}" class="btn">Edit</a>
+              <a href="{% url 'activity_delete' pk=activity.pk %}" class="btn">Delete</a>
+            </div>
+          </div>
+          <div class="details" id="details-{{ activity.pk }}">
+            <h3>Activity Details</h3>
+            <p><span class="label">Description:</span> {{ activity.description }}</p>
+            <p><span class="label">Due Date:</span> {{ activity.due_date|date:"Y-m-d" }}</p>
+            <p><span class="label">Reminder Time:</span> 
+              {% if activity.reminder_time %}
+                {{ activity.reminder_time|date:"Y-m-d H:i" }}
+              {% else %}
+                Not set
+              {% endif %}
+            </p>
+            <button type="button" class="close-btn" onclick="toggleDetails('{{ activity.pk }}')">Close</button>
+          </div>
+          {% endfor %}
+          <button type="submit" id="delete-selected-btn-pending" disabled>Delete Selected</button>
+        </form>
+      </section>
 
-        
-        <!-- Your Notes Section -->
-        <div class="mb-4">
-            <h4>Your Notes</h4>
-            <a href="{% url 'my_notes' %}" class="btn btn-secondary">View My Notes</a>
-        </div>
+      <!-- Completed Activities -->
+      <section>
+        <h2>Completed Activities</h2>
+        <form method="POST" action="{% url 'delete_selected_completed_activities' %}">
+          {% csrf_token %}
+          {% for activity in completed_activities %}
+          <div class="activity-item">
+            <input type="checkbox" name="selected_completed_activities" value="{{ activity.pk }}" class="activity-checkbox completed">
+            <div class="activity-details">
+              <strong>{{ activity.title }}</strong>
+              <div class="priority-dot" style="background-color: {{ activity.priority_color }}">
+                {{ activity.get_priority_display }}
+              </div>
+            </div>
+            <div class="activity-actions">
+              <button type="button" class="show-details-btn" onclick="toggleDetails('{{ activity.pk }}')">Details</button>
+              <a href="{% url 'activity_edit' pk=activity.pk %}" class="btn">Edit</a>
+              <a href="{% url 'activity_delete' pk=activity.pk %}" class="btn">Delete</a>
+            </div>
+          </div>
+          <div class="details" id="details-{{ activity.pk }}">
+            <h3>Activity Details</h3>
+            <p><span class="label">Description:</span> {{ activity.description }}</p>
+            <p><span class="label">Completed On:</span> {{ activity.date|date:"Y-m-d" }}</p>
+            <p><span class="label">Reminder Time:</span> 
+              {% if activity.reminder_time %}
+                {{ activity.reminder_time|date:"Y-m-d H:i" }}
+              {% else %}
+                Not set
+              {% endif %}
+            </p>
+            <button type="button" class="close-btn" onclick="toggleDetails('{{ activity.pk }}')">Close</button>
+          </div>
+          {% endfor %}
+          <button type="submit" id="delete-selected-btn-completed" disabled>Delete Selected</button>
+        </form>
+      </section>
+    </main>
+  </div>
 
-        <!-- Your Tasks Section -->
-        <div class="mb-4">
-            <h4>Pending Tasks</h4>
-            {% if pending_tasks %}
-                <ul class="list-group">
-                    {% for task in pending_tasks %}
-                        <li class="list-group-item">
-                            <strong>{{ task.title }}</strong> - Due: {{ task.created_at|date:"Y-m-d" }}
-                            <br>
-                            <small>{{ task.description }}</small>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No pending tasks!</p>
-            {% endif %}
-        </div>
+  <footer>
+    <p>&copy; 2025 Do It</p>
+  </footer>
 
-        <div class="mb-4">
-            <h4>Completed Tasks</h4>
-            {% if completed_tasks %}
-                <ul class="list-group">
-                    {% for task in completed_tasks %}
-                        <li class="list-group-item">
-                            <strong>{{ task.title }}</strong> - Completed
-                            <br>
-                            <small>{{ task.description }}</small>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No completed tasks yet!</p>
-            {% endif %}
-        </div>
+  <script>
+    function toggleDetails(activityId) {
+      const details = document.getElementById('details-' + activityId);
+      details.style.display = (details.style.display === 'block') ? 'none' : 'block';
+    }
 
-        <!-- Class and Exam Routine Section -->
-        <div class="mb-4">
-            <h4>Class and Exam Routines</h4>
-            <a href="{% url 'class_routine_list' %}" class="btn btn-primary me-2">View Class Routines</a>
-            <a href="{% url 'exam_list' %}" class="btn btn-primary">View Exam Routines</a>
-        </div>
+    document.querySelectorAll('.activity-checkbox.pending').forEach(cb => {
+      cb.addEventListener('change', () => {
+        document.getElementById('delete-selected-btn-pending').disabled =
+          document.querySelectorAll('.activity-checkbox.pending:checked').length === 0;
+      });
+    });
 
-        <!-- REport SEction Section -->
-        <div class="d-flex justify-content-center gap-3 mb-4">
-    <a href="{% url 'efficiency_report' %}" class="btn btn-outline-info">
-        📈 Report
-    </a>
-</div>
-        
-        <!-- Profile Link -->
-        <div class="text-center mt-4">
-            <a href="{% url 'profile' %}" class="btn btn-success">
-                Go to Profile
-            </a>
-        </div>
-    </div>
-</div>
-{% endblock %}
+    document.querySelectorAll('.activity-checkbox.completed').forEach(cb => {
+      cb.addEventListener('change', () => {
+        document.getElementById('delete-selected-btn-completed').disabled =
+          document.querySelectorAll('.activity-checkbox.completed:checked').length === 0;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -209,6 +209,13 @@ class Activity(models.Model):
 
     def __str__(self):
         return self.title
+    def priority_color(self):
+        if self.priority == 'H':
+            return 'red'  # High priority (Red)
+        elif self.priority == 'M':
+            return 'orange'  # Medium priority (Orange)
+        else:
+            return 'green'  # Low priority (Green)
 class ChecklistItem(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name='checklist_items')
     description = models.CharField(max_length=255)

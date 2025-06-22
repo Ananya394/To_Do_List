@@ -145,3 +145,10 @@ class ActivityQuickForm(forms.ModelForm):  # used for board-style quick add
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
+
+from django.contrib.auth.forms import PasswordChangeForm
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    class Meta:
+        model = User
+        fields = ['old_password', 'new_password1', 'new_password2']
