@@ -149,6 +149,12 @@
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Save Note</button>
+        <div class="text-center mb-4">
+  <a href="{% url 'dashboard' %}" class="btn btn-primary px-4 py-2 shadow-sm">
+    🏠Back
+  </a>
+</div>
+
       </form>
     </div>
 
@@ -162,15 +168,23 @@
               <p>{{ note.description }}</p>
             {% endif %}
             {% if note.attachment %}
-              <p>📎 <a href="{{ note.attachment.url }}" target="_blank">View Attachment</a></p>
-            {% endif %}
-            {% if note.memory_prompt %}
-              <p>🧠 <strong>Prompt:</strong> {{ note.memory_prompt }}</p>
-            {% endif %}
-            <div class="attended-line">
-              <span>✅</span>
-              <span>Reviewed: {{ note.attended|yesno:"Yes,No" }}</span>
-            </div>
+  <div class="mt-4 text-center">
+    {% with note.attachment.url|lower as file_url %}
+      {% if ".jpg" in file_url or ".jpeg" in file_url or ".png" in file_url or ".gif" in file_url %}
+        <img src="{{ note.attachment.url }}" alt="Attachment"
+             style="width: 150px; height: 200px; object-fit: cover; border-radius: 8px; box-shadow: 0 0 6px rgba(0,0,0,0.2);">
+      {% elif ".pdf" in file_url %}
+        <embed src="{{ note.attachment.url }}"
+               type="application/pdf"
+               style="width: 150px; height: 200px; border-radius: 8px; box-shadow: 0 0 6px rgba(0,0,0,0.2);" />
+      {% else %}
+        <a href="{{ note.attachment.url }}" target="_blank" class="btn btn-outline-primary">Open Attachment</a>
+      {% endif %}
+    {% endwith %}
+  </div>
+{% endif %}
+
+            
             <div class="note-meta">🕒 {{ note.created_at|date:"M d, Y - H:i" }}</div>
           </div>
 

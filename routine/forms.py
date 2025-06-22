@@ -74,7 +74,7 @@ class ExamForm(forms.ModelForm):
 class MyNoteForm(forms.ModelForm):
     class Meta:
         model = MyNote
-        fields = ['title', 'description', 'attachment', 'memory_prompt', 'attended', 'priority', 'due_date']
+        fields = ['title', 'description', 'attachment']
 
     # You can add any custom validation or styling here if needed
 
