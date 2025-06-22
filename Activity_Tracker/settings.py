@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'routine',
+   # 'rest_framework',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -114,6 +116,14 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Session Engine: Use database to store sessions
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# CSRF settings: Set to False for local development (True for production with HTTPS)
+CSRF_COOKIE_SECURE = False  # Set to True in production (with HTTPS)
+
+# Optional: Trusted origins for local development
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

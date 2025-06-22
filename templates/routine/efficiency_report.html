@@ -1,0 +1,143 @@
+{% extends 'routine/base.html' %}
+{% block title %}Efficiency Report{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="text-center mb-4">📊 Weekly Efficiency (Last 7 Days)</h2>
+
+  <!-- Chart Container -->
+  <div class="mx-auto my-4" style="max-width: 480px; height: 260px;">
+    <canvas id="efficiencyChart"></canvas>
+  </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Chart Script -->
+<script>
+const ctx = document.getElementById('efficiencyChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: {{ labels|safe }},
+    datasets: [{
+      label: 'Efficiency',
+      data: {{ efficiency|safe }},
+      backgroundColor: 'rgba(52, 78, 103, 0.7)',  // formal blue-gray
+      borderColor: 'rgba(52, 78, 103, 1)',
+      borderWidth: 1,
+      borderRadius: 4,
+      barThickness: 26
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+        ticks: {
+          stepSize: 20,
+          callback: val => val + '%'
+        },
+        grid: {
+          color: '#e5e7eb'
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ctx.parsed.y + '%'
+        }
+      }
+    }
+  }
+});
+</script>
+<div class="container mt-4">
+  <div class="row justify-content-center g-4">
+  
+    <!-- Tag-wise Completion Table -->
+    <div class="col-md-6">
+      <div class="card shadow border-0">
+        <div class="card-header bg-info text-white fw-bold text-center">
+          🏷️ Tag-wise Completion
+        </div>
+        <div class="card-body">
+          <table class="table table-sm table-bordered text-center">
+            <thead class="table-light">
+              <tr>
+                <th>Tag</th>
+                <th>Completed</th>
+                <th>Total</th>
+                <th>Efficiency (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for tag, data in tag_summary.items %}
+              <tr>
+                <td>{{ tag }}</td>
+                <td>{{ data.completed }}</td>
+                <td>{{ data.total }}</td>
+                <td>{{ data.percent }}%</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4">No tag data found</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overall Efficiency by Priority -->
+    <div class="col-md-6">
+      <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white fw-bold text-center">
+          ⚙️ Overall Efficiency by Priority
+        </div>
+        <div class="card-body">
+          {% if priority_efficiency %}
+          <table class="table table-sm table-bordered text-center">
+            <thead class="table-light">
+              <tr>
+                <th>Priority</th>
+                <th>Efficiency (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge bg-danger">High</span></td>
+                <td>{{ priority_efficiency.H }}%</td>
+              </tr>
+              <tr>
+                <td><span class="badge bg-warning text-dark">Medium</span></td>
+                <td>{{ priority_efficiency.M }}%</td>
+              </tr>
+              <tr>
+                <td><span class="badge bg-success">Low</span></td>
+                <td>{{ priority_efficiency.L }}%</td>
+              </tr>
+            </tbody>
+          </table>
+          {% else %}
+            <p class="text-muted">No priority summary available.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+{% endblock %}

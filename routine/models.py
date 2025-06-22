@@ -175,3 +175,52 @@ class ExamRoutine(models.Model):
 
     def __str__(self):
         return f"{self.course_name} on {self.exam_date}"
+
+
+from django.db import models
+from django.contrib.auth.models import User
+
+class Activity(models.Model):
+    PRIORITY_CHOICES = [
+        ('H', 'High'),
+        ('M', 'Medium'),
+        ('L', 'Low'),
+    ]
+
+    STATUS_CHOICES = [
+        ('P', 'Pending'),
+        ('C', 'Completed'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    #category = models.CharField(max_length=50, blank=True)  # e.g., Study, Project, Exam
+    tags = models.CharField(max_length=100, blank=True, default="#general")
+    priority = models.CharField(max_length=1, choices=PRIORITY_CHOICES, default='M')
+    #duration = models.DurationField(null=True, blank=True)
+    #start_time = models.DateTimeField(null=True, blank=True)
+    #end_time = models.DateTimeField()
+    date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='P')
+    reminder_time = models.DateTimeField(null=True, blank=True)
+    completed = models.BooleanField(default=False)
+    #due_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.title
+    def priority_color(self):
+        if self.priority == 'H':
+            return 'red'  # High priority (Red)
+        elif self.priority == 'M':
+            return 'orange'  # Medium priority (Orange)
+        else:
+            return 'green'  # Low priority (Green)
+class ChecklistItem(models.Model):
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name='checklist_items')
+    description = models.CharField(max_length=255)
+    is_done = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.description} - {'Done' if self.is_done else 'Pending'}"
+
