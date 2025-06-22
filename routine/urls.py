@@ -8,8 +8,9 @@ from . import views
 
 urlpatterns = [
     # Authentication Views
+    path('', views.home, name='home'),
     path('register/', views.register, name='register'),
-    path('login/', views.user_login, name='login'),
+    path('login/', views.custom_login_view, name='login'),
 
     # Profile Page
     path('profile/', views.user_profile, name='profile'),  # Profile URL
@@ -18,7 +19,6 @@ urlpatterns = [
     
     # Dashboard
     path('dashboard/', views.dashboard, name='dashboard'), 
-    path('home/', views.home, name='home'),
     
     # Class Routine Views
     path('classes/', views.class_routine_list, name='class_routine_list'),

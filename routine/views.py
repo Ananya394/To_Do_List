@@ -2,14 +2,37 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from .forms import RegistrationForm, ClassRoutineForm, MyNoteForm, ExamForm
+from .forms import RegistrationForm, ClassRoutineForm, MyNoteForm, ExamForm,LoginForm
 from .models import UserProfile, ClassRoutine, MyNote, ExamRoutine
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile
 from .forms import UserProfileForm
 
+# def home(request):
+#    return render(request, 'routine/home.html')
 def home(request):
-   return render(request, 'routine/home.html')
+    login_form = LoginForm()
+    register_form = RegistrationForm()
+    return render(request, 'routine/home.html', {
+        'login_form': login_form,
+        'register_form': register_form
+    })
+ 
+  #eti 
+def custom_login_view(request):
+    if request.method == 'POST':
+        form = LoginForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('activity_board')  # or wherever
+    else:
+        form = LoginForm()
+    return render(request, 'routine/login.html', {'form': form})
+
+
+
+# eti
 
 @login_required
 def class_routine_list(request):
@@ -29,7 +52,7 @@ def class_routine_list(request):
 
 @login_required
 def exam_list(request):
-    exams = ExamRoutine.objects.filter(user=request.user).order_by('exam_date', 'start_time')  # Fetch exams for the logged-in user
+    exams = ExamRoutine.objects.filter(user=request.user).order_by('exam_date', 'start_time') 
     return render(request, 'routine/exam_list.html', {'exams': exams})
 
 
@@ -40,7 +63,7 @@ def edit_task(request, pk):
         form = MyNoteForm(request.POST, request.FILES, instance=task)
         if form.is_valid():
             form.save()
-            return redirect('my_notes')  # Redirect after saving the task
+            return redirect('my_notes')  
     else:
         form = MyNoteForm(instance=task)
 
@@ -49,14 +72,10 @@ def edit_task(request, pk):
 
 @login_required
 def dashboard(request):
-    # Get tasks related to the logged-in user
     tasks = MyNote.objects.filter(user=request.user).order_by('-created_at')
-    
-    # You can also filter tasks by completion status or other criteria
+ 
     pending_tasks = tasks.filter(attended=False)
     completed_tasks = tasks.filter(attended=True)
-
-    # Optionally, pass task progress, e.g., completed vs pending
     total_tasks = tasks.count()
     completed = completed_tasks.count()
     progress_percentage = (completed / total_tasks) * 100 if total_tasks > 0 else 0
@@ -76,73 +95,54 @@ def edit_profile(request):
         form = UserProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            return redirect('dashboard')  # Redirect back to the profile page
+            return redirect('dashboard')  
     else:
         form = UserProfileForm(instance=profile)
 
     return render(request, 'routine/edit_profile.html', {'form': form})
 
-
-# Register view
-
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            # Save the user and hash the password
             user = form.save()
-
-            # Check if the user already has a profile; if not, create one
             if not UserProfile.objects.filter(user=user).exists():
+
                 UserProfile.objects.create(user=user)
 
-            login(request, user)  # Log the user in
+            login(request, user) 
             messages.success(request, "Registration successful!")
-            return redirect('profile')  # Redirect to the profile page after registration
+            return redirect('profile')  
     else:
         form = RegistrationForm()
 
     return render(request, 'routine/register.html', {'form': form})
 
-
-# Login view
 def user_login(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            login(request, user)  # Log the user in
+            login(request, user) 
             messages.success(request, "Login successful!")
-            return redirect('dashboard')  # Redirect to profile page after successful login
+            return redirect('dashboard')
         else:
             messages.error(request, "Invalid credentials.")
     else:
         form = AuthenticationForm()
     return render(request, 'routine/login.html', {'form': form})
-
-# Profile view for logged-in user
 @login_required
 def user_profile(request):
-    profile = get_object_or_404(UserProfile, user=request.user)  # Get the user's profile
+    profile = get_object_or_404(UserProfile, user=request.user) 
     return render(request, 'routine/profile.html', {'profile': profile})
-
-# Class Routine Views
-###
-# def class_routine_list(request):
-#     routines = ClassRoutine.objects.all()
-#     return render(request, 'routine/class_routine_list.html', {'routines': routines})
-
-
-
-
 
 def add_class_routine(request):
     if request.method == 'POST':
         form = ClassRoutineForm(request.POST)
         if form.is_valid():
-            routine = form.save(commit=False)  # Don't save to DB yet
-            routine.user = request.user        # Assign the current logged-in user
-            routine.save()                     # Now save to DB
+            routine = form.save(commit=False)  
+            routine.user = request.user        
+            routine.save()                    
             return redirect('class_routine_list')
     else:
         form = ClassRoutineForm()
@@ -169,8 +169,8 @@ def add_exam(request):
     if request.method == 'POST':
         form = ExamForm(request.POST)
         if form.is_valid():
-            routine = form.save(commit=False)  # Don't save to DB yet
-            routine.user = request.user        # Assign the current logged-in user
+            routine = form.save(commit=False)  
+            routine.user = request.user        
             routine.save() 
             return redirect('exam_list')
     else:
@@ -195,22 +195,19 @@ def delete_exam(request, exam_id):
 
 @login_required
 def my_notes_view(request):
-    notes = MyNote.objects.filter(user=request.user).order_by('-created_at')  # Filter notes for the logged-in user
+    notes = MyNote.objects.filter(user=request.user).order_by('-created_at')  
 
     if request.method == 'POST':
         form = MyNoteForm(request.POST, request.FILES)
         if form.is_valid():
             note = form.save(commit=False)
-            note.user = request.user  # Set the user explicitly
+            note.user = request.user  
             note.save()
-            return redirect('my_notes')  # Redirect after saving the note
+            return redirect('my_notes')  
     else:
         form = MyNoteForm()
 
     return render(request, 'routine/my_notes.html', {'form': form, 'notes': notes})
-
-
-
 def edit_note(request, pk):
     note = get_object_or_404(MyNote, pk=pk)
     if request.method == 'POST':
@@ -226,39 +223,29 @@ def delete_note(request, pk):
     note = get_object_or_404(MyNote, pk=pk)
     note.delete()
     return redirect('my_notes')
-
-
-
-
 def add_task(request):
     if request.method == 'POST':
         form = MyNoteForm(request.POST, request.FILES)
         if form.is_valid():
             note = form.save(commit=False)
-            note.user = request.user  # Associate the logged-in user
-            note.save()  # Save the note
-            return redirect('dashboard')  # Redirect to the dashboard after saving the task
+            note.user = request.user 
+            note.save()  
+            return redirect('dashboard')  
         else:
-            # Debugging: Add a message or log to check why the form isn't valid
-            print(form.errors)  # This will print form validation errors to the console
+            
+            print(form.errors) 
     else:
         form = MyNoteForm()
 
     return render(request, 'routine/my_note_form.html', {'form': form})
-
-
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Activity, ChecklistItem
 from .forms import ActivityForm, ChecklistItemForm,ActivityQuickForm
 from django.utils import timezone
 
-# List of all user activities
 from datetime import date
-
 from datetime import date
-
 def get_urgency_color(days_left):
     if days_left >= 7:
         return "green"
@@ -268,8 +255,6 @@ def get_urgency_color(days_left):
         return "orange"
     else:
         return "red"
-
-
 @login_required
 def activity_list(request):
     today = date.today()
@@ -277,8 +262,6 @@ def activity_list(request):
     date_filter = request.GET.get('date', '')
 
     activities = Activity.objects.filter(user=request.user).order_by('date')
-
-    # Apply filters if given (priority and date)
     if priority_filter:
         activities = activities.filter(priority=priority_filter)
     if date_filter:
@@ -293,7 +276,6 @@ def activity_list(request):
         days_left = (activity.date - today).days if activity.date else None
 
         if days_left is not None:
-            # Urgency width & color logic
             if days_left >= 7:
                 activity.urgency_width = 0
             elif days_left <= 0:
@@ -333,11 +315,6 @@ def activity_list(request):
     }
 
     return render(request, 'routine/activity_list.html', context)
-
-
-
-
-# Add a new activity
 @login_required
 def activity_create(request):
     if request.method == 'POST':
@@ -354,8 +331,6 @@ def activity_create(request):
     else:
         form = ActivityForm()
     return render(request, 'routine/activity_form.html', {'form': form})
-
-# Edit an existing activity
 @login_required
 def activity_edit(request, pk):
     activity = get_object_or_404(Activity, pk=pk, user=request.user)
@@ -370,15 +345,11 @@ def activity_edit(request, pk):
         form = ActivityForm(instance=activity)
     return render(request, 'routine/activity_form.html', {'form': form, 'referer': referer})
     
-
-# Delete an activity
 @login_required
 def activity_delete(request, pk):
     activity = get_object_or_404(Activity, pk=pk, user=request.user)
     activity.delete()
     return redirect('activity_list')
-
-# Checklist: Add item
 @login_required
 def checklist_add(request, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id, user=request.user)
@@ -392,15 +363,6 @@ def checklist_add(request, activity_id):
     else:
         form = ChecklistItemForm()
     return render(request, 'routine/checklist_form.html', {'form': form, 'activity': activity})
-
-# def activity_complete(request, pk):
-#     activity = get_object_or_404(Activity, pk=pk, user=request.user)
-#     activity.status = 'C'
-#     activity.save()
-#     return redirect('activity_list')
-
-
-
 
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Activity
@@ -435,7 +397,6 @@ def activity_board(request):
     form = ActivityQuickForm()
     return render(request, 'routine/activity_board.html', {'columns': category, 'form': form})
 
-
 @login_required
 def add_activity(request, category):
     if request.method == 'POST':
@@ -457,7 +418,6 @@ def add_activity(request, category):
             activity.save()
     return redirect('activity_board')
 
-
 @login_required
 def complete_activity(request, pk):
     activity = get_object_or_404(Activity, pk=pk, user=request.user)  # ensure user owns it
@@ -468,64 +428,11 @@ def complete_activity(request, pk):
     activity.save()
     return redirect(request.META.get('HTTP_REFERER', 'activity_board'))
 
-
-# @login_required
-# def edit_activity(request, pk):
-#     activity = get_object_or_404(Activity, pk=pk, user=request.user)  # ensure user owns it
-#     if request.method == 'POST':
-#         form = ActivityQuickForm(request.POST, instance=activity)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('activity_board')
-#     else:
-#         form = ActivityForm(instance=activity)
-#     return render(request, 'edit_activity.html', {'form': form})
-
-
 from datetime import timedelta
 from collections import defaultdict
 from django.utils import timezone
 
 @login_required
-    # filter_range = request.GET.get('filter', 'all')
-    # now = timezone.now().date()
-
-    # if filter_range == 'weekly':
-    #     start_date = now - timedelta(days=7)
-    # elif filter_range == 'monthly':
-    #     start_date = now - timedelta(days=30)
-    # else:
-    #     start_date = None  # All time
-
-    # activities = Activity.objects.filter(user=request.user)
-    # if start_date:
-    #     activities = activities.filter(date__gte=start_date)
-
-    # tag_stats = defaultdict(lambda: {'total': 0, 'completed': 0})
-
-    # for activity in activities:
-    #     tags = activity.tags.split()
-    #     for tag in tags:
-    #         tag_stats[tag]['total'] += 1
-    #         if activity.completed:
-    #             tag_stats[tag]['completed'] += 1
-    #         if activity.status=='C':
-    #             tag_stats[tag]['completed'] += 1
-
-    # review_data = []
-    # for tag, data in tag_stats.items():
-    #     percent = (data['completed'] / data['total']) * 100 if data['total'] else 0
-    #     review_data.append({
-    #         'tag': tag,
-    #         'completed': data['completed'],
-    #         'total': data['total'],
-    #         'percent': round(percent, 1),
-    #     })
-
-    # return render(request, 'routine/activity_review.html', {
-    #     'review_data': review_data,
-    #     'filter_range': filter_range
-    # })@login_required
 def combined_review_summary(request):
     filter_range = request.GET.get('filter', 'all')
     now = timezone.now().date()
@@ -551,7 +458,7 @@ def combined_review_summary(request):
                 tag_stats[tag]['completed'] += 1
         
 
-    tag_summary = {}  # use this name in the template
+    tag_summary = {} 
     for tag, data in tag_stats.items():
         percent = (data['completed'] / data['total']) * 100 if data['total'] else 0
         tag_summary[tag] = {
@@ -559,8 +466,6 @@ def combined_review_summary(request):
             'total': data['total'],
             'percent': round(percent, 1),
         }
-
-    # --- SUMMARY GROUPED BY DATE ---
     summary = defaultdict(list)
     for activity in activities.order_by('date'):
         summary[activity.date].append(activity)
@@ -600,7 +505,6 @@ def efficiency_report(request):
         percent = round((completed / total) * 100, 2) if total > 0 else 0
         efficiency.append(percent)
 
-    # === TAG SUMMARY ===
     tag_stats = defaultdict(lambda: {'total': 0, 'completed': 0})
     tag_priority_stats = defaultdict(lambda: {
         'H': {'total': 0, 'completed': 0},
@@ -615,13 +519,10 @@ def efficiency_report(request):
             if activity.completed:
                 tag_stats[tag]['completed'] += 1
 
-            # Track by priority
             priority = activity.priority
             tag_priority_stats[tag][priority]['total'] += 1
             if activity.completed:
                 tag_priority_stats[tag][priority]['completed'] += 1
-
-    # Clean tag summary
     tag_summary = {}
     for tag, data in tag_stats.items():
         percent = (data['completed'] / data['total']) * 100 if data['total'] else 0
@@ -631,7 +532,6 @@ def efficiency_report(request):
             'percent': round(percent, 1),
         }
 
-    # Tag-based by priority
     tag_priority_summary = {}
     for tag, levels in tag_priority_stats.items():
         tag_priority_summary[tag] = {}
@@ -643,7 +543,6 @@ def efficiency_report(request):
                 'percent': round(percent, 1)
             }
 
-    # Overall summary by priority
     priority_totals = {'H': {'completed': 0, 'total': 0},
                        'M': {'completed': 0, 'total': 0},
                        'L': {'completed': 0, 'total': 0}}
@@ -660,7 +559,6 @@ def efficiency_report(request):
         percent = (completed / total) * 100 if total else 0
         priority_efficiency[level] = round(percent, 1)
 
-    # Final context
     context = {
         'labels': labels,
         'efficiency': efficiency,

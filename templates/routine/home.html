@@ -7,31 +7,118 @@
   <title>Welcome to Activity Tracker</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
 </head>
+
 <body class="bg-gray-50 min-h-screen flex flex-col">
 
   <header class="bg-blue-700 text-white p-6 shadow-md">
     <div class="container mx-auto flex justify-between items-center">
       <h1 class="text-3xl font-bold">Activity Tracker</h1>
-      <nav>
+      {% comment %} <nav>
         <a href="{% url 'activity_board' %}" class="hover:underline text-lg">My Activities</a>
+      </nav> {% endcomment %}
+      <nav class="space-x-4">
+            <button onclick="openModal('login')" class="hover:underline text-lg">Login</button>
+             <button onclick="openModal('register')" class="hover:underline text-lg">Register</button>
       </nav>
+
     </div>
   </header>
 
-  <main class="flex-grow flex items-center justify-center px-4">
-    <div class="max-w-xl text-center">
-      <h2 class="text-4xl font-extrabold mb-4 text-gray-800">Welcome to Your Productivity Hub</h2>
-      <p class="text-gray-600 mb-8">Track, organize, and complete your tasks efficiently.</p>
-      <a href="{% url 'activity_board' %}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-blue-700 transition">
-        View Activity Board
-      </a>
-      <p class="mt-6 text-gray-500 text-sm">Manage your tasks, set reminders, and stay on top of your goals.</p>
+  {% comment %} <div class="mt-10 max-w-md mx-auto bg-white p-6 rounded shadow">
+  <h3 class="text-xl font-semibold mb-4 text-gray-800">Login to Your Account</h3>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="mb-4">
+      {{ form.username.label_tag }}<br>
+      {{ form.username }}
+      {{ form.username.errors }}
     </div>
-  </main>
+    <div class="mb-4">
+      {{ form.password.label_tag }}<br>
+      {{ form.password }}
+      {{ form.password.errors }}
+    </div>
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Login</button>
+  </form>
+  <p class="mt-3 text-sm text-gray-600">Don't have an account? 
+    <a href="{% url 'register' %}" class="text-blue-600 hover:underline">Register here</a>.
+  </p>
+</div> {% endcomment %}
+
+  <main class="flex-grow flex items-center justify-center px-4">
+  <div class="max-w-xl text-center">
+    <h2 class="text-4xl font-extrabold mb-4 text-gray-800">Welcome to Your Productivity Hub</h2>
+    <p class="text-gray-600 mb-4">Track, organize, and complete your tasks efficiently.</p>
+    <p class="text-gray-500 text-sm">Manage your tasks, set reminders, and stay on top of your goals.</p>
+  </div>
+</main>
+<!-- Modal Background -->
+<div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <!-- Modal Box -->
+  <div class="bg-white p-6 rounded-lg w-full max-w-sm relative">
+    <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-400 hover:text-black text-xl">&times;</button>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="auth-form">
+      <h3 class="text-xl font-semibold mb-4">Login</h3>
+      <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        {{ login_form.as_p }}
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Login</button>
+      </form>
+    </div>
+
+    <!-- Register Form -->
+    <div id="registerForm" class="auth-form hidden">
+      <h3 class="text-xl font-semibold mb-4">Register</h3>
+      <form method="post" action="{% url 'register' %}">
+        {% csrf_token %}
+        {{ register_form.as_p }}
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Register</button>
+      </form>
+    </div>
+  </div>
+</div>
 
   <footer class="bg-gray-200 text-center py-4 text-gray-600 text-sm">
     &copy; {{ now.year }} Activity Tracker. All rights reserved.
   </footer>
+  <script>
+  // Function to open modal and show either login or register form
+  function openModal(formType) {
+    const modal = document.getElementById('authModal');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    
+    modal.classList.remove('hidden');
+    
+    if (formType === 'login') {
+      loginForm.classList.remove('hidden');
+      registerForm.classList.add('hidden');
+    } else if (formType === 'register') {
+      registerForm.classList.remove('hidden');
+      loginForm.classList.add('hidden');
+    }
+  }
+  
+  // Function to close the modal
+  function closeModal() {
+    const modal = document.getElementById('authModal');
+    modal.classList.add('hidden');
+  }
+  
+  // Optional: Close modal if user clicks outside the modal box
+  document.getElementById('authModal').addEventListener('click', function(event) {
+    if(event.target === this) {
+      closeModal();
+    }
+  });
+</script>
 
+
+  
 </body>
 </html>
+
+{% comment %} Hello eti {% endcomment %}
