@@ -59,7 +59,7 @@ urlpatterns = [
     path('activities/<int:pk>/complete/', views.complete_activity, name='complete_activity'),
     path('activities/delete_selected/', views.delete_selected_activities, name='delete_selected_activities'),
     path('activities/delete_selected_completed/', views.delete_selected_completed_activities, name='delete_selected_completed_activities'),
-    path('', views.activity_board, name='activity_board'),
+    path('activity_board/', views.activity_board, name='activity_board'),
     path('add/<str:category>/', views.add_activity, name='add_activity'),
     path('complete/<int:pk>/', views.complete_activity, name='complete_activity'),
     path('edit/<int:pk>/', views.activity_edit, name='activity_edit'),
@@ -68,7 +68,7 @@ urlpatterns = [
 
     path('activities/review/', views.combined_review_summary, name='activity_review'),
     path('report/', views.efficiency_report, name='efficiency_report'),
-
+    path('', views.home, name='home'),
 
 ]
 

@@ -1,10 +1,13 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard</title>
   <style>
+    /* Global Reset */
     * {
       margin: 0;
       padding: 0;
@@ -107,209 +110,88 @@
       text-align: center;
     }
 
-    .task-overview {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 30px;
+    /* Activity Board Styles */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Adjust for better responsiveness */
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .card {
       padding: 20px;
-      background-color: #fff;
+      border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
+      background-color: #f9f9f9;
     }
 
-    .task-overview h2 {
-      font-size: 24px;
+    .card h2 {
+      font-size: 20px;
       margin-bottom: 10px;
       color: #333;
     }
 
-    .overview-stats {
-      display: flex;
-      justify-content: space-between;
-      gap: 30px;
-    }
-
-    .overview-stats p {
-      font-size: 16px;
-      margin: 0;
-    }
-
-    .progress {
-      height: 20px;
-      border-radius: 10px;
-      background-color: #e6e6e6;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #4caf50, rgb(7, 59, 10));
-      text-align: center;
-      color: white;
-      line-height: 20px;
-      font-size: 14px;
-    }
-
-    section {
-      margin-bottom: 30px;
-    }
-
-    section h2 {
-      font-size: 24px;
-      color: #333;
-      margin-bottom: 10px;
-    }
-
-    .activity-item {
-      padding: 10px 20px;
-      margin: 10px 0 ;
-      background-color: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      color: black; 
-      display: flex;
-      flex-wrap: wrap;
-      overflow: hidden;
-      justify-content: flex-start;
-      align-items: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .activity-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .activity-details {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      margin-right: 15px;
-      word-wrap: break-word; /* Allow long words to break */
-      overflow-wrap: break-word; 
-    }
-
-    .priority-dot {
-      width: 50px;              /* Increase size for text */
-      height: 20px;
-      border-radius: 10%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;             /* White text */
-      font-size: 13px;   
-      margin-right: 15px; 
-      margin-top: 5px;      /* Adjust text size */
-       /* margin:-12px 0 10px 0px;*/
-    }
-
-    .activity-actions {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: flex-start; /* Adjust this line */
-    }
-
-    .show-details-btn {
-      padding: 8px 16px;
-      background-color: #1e90ff;
-      color: white;
+    .form input {
+      width: 100%;
+      padding: 8px;
       border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      border: none;
-      min-width: 100px;
-      text-align: center;
+      border: 1px solid #ddd;
+      margin-bottom: 10px;
     }
 
-    .show-details-btn:hover {
-      background-color: #1c86ee;
-    }
-
-    .activity-item .btn {
-      padding: 8px 16px;
+    .form button {
+      width: 100%;
+      padding: 10px;
       background-color: #4caf50;
       color: white;
       border: none;
       border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
-      text-decoration: none;
-      min-width: 100px;
-      text-align: center;
     }
 
-    .activity-item .btn:hover {
-      background-color: #45a049;
+    /* Task list and Task styling */
+    .task-list {
+      margin-top: 15px;
     }
 
-    .details {
-      display: none;
-      margin: 10px 0 20px 50px;
-      background-color: #f9f9f9;
-      padding: 20px;
-      border-radius: 8px;
+    .task {
+      background-color: white;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task .task-title {
+      flex-grow: 1;
+    }
+
+    .task input[type="checkbox"] {
+      margin-right: 10px;
+    }
+
+    .task .task-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .task button,
+    .task a {
+      text-decoration: none;
+      color: #1e90ff;
       font-size: 14px;
     }
 
-    .details p {
-      margin-bottom: 10px;
-      font-size: 16px;
+    .task button:hover,
+    .task a:hover {
+      color: #0d47a1;
     }
 
-    .details h3 {
-      margin-bottom: 10px;
-      font-size: 18px;
-      color: #333;
-    }
-
-    .details .label {
-      font-weight: bold;
-      margin-right: 5px;
-    }
-
-    .details .close-btn {
-      background-color: #e74c3c;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      border: none;
-      display: inline-block;
-      margin-top: 20px;
-    }
-
-    .details .close-btn:hover {
-      background-color: #c0392b;
-    }
-
-    #delete-selected-btn-pending,
-    #delete-selected-btn-completed {
-      background-color: #e74c3c;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      border: none;
-    }
-
-    #delete-selected-btn-pending:disabled,
-    #delete-selected-btn-completed:disabled {
-      background-color: #ddd;
-      cursor: not-allowed;
-    }
-
-    #delete-selected-btn-pending:hover:enabled,
-    #delete-selected-btn-completed:hover:enabled {
-      background-color: #c0392b;
+    .task .due-date {
+      font-size: 12px;
+      color: #888;
     }
 
     footer {
@@ -321,8 +203,10 @@
       bottom: 0;
       width: 100%;
     }
+
   </style>
 </head>
+
 <body>
   <header>
     <div class="logo">Do It</div>
@@ -336,7 +220,6 @@
   <div class="container">
     <aside>
       <ul>
-        
         <li><a href="{% url 'class_routine_list' %}">Class Routines</a></li>
         <li><a href="{% url 'exam_list' %}">Exam Routines</a></li>
         <li><a href="{% url 'activity_board' %}">Activity Board</a></li>
@@ -347,8 +230,9 @@
     </aside>
 
     <main>
-      <h2 style="font-size: 36px;">Welcome, {{ user.username }}!</h2>
+      <h2>Welcome, {{ user.username }}!</h2>
 
+      <!-- Task Overview Section -->
       <div class="task-overview">
         <h2>Task Overview</h2>
         <div class="overview-stats">
@@ -357,88 +241,50 @@
           <p>Pending: {{ pending_activities.count }}</p>
         </div>
         <div class="progress">
-          <div class="progress-bar" style="width: {{ progress_percentage }}%;">
-            {{ progress_percentage }}% Completed
-          </div>
+          <div class="progress-bar" style="width: {{ progress_percentage }}%;">{{ progress_percentage }}% Completed</div>
         </div>
       </div>
 
-      <!-- Pending Activities -->
-      <section>
-        <h2>Pending Activities</h2>
-        <form method="POST" action="{% url 'delete_selected_activities' %}">
-          {% csrf_token %}
-          {% for activity in pending_activities %}
-          <div class="activity-item">
-            <input type="checkbox" name="selected_activities" value="{{ activity.pk }}" class="activity-checkbox pending">
-            <div class="activity-details">
-              <strong>{{ activity.title }}</strong>
-              <div class="priority-dot" style="background-color: {{ activity.priority_color }}">
-                {{ activity.get_priority_display }}
-              </div>
-            </div>
-            <div class="activity-actions">
-              <a href="{% url 'complete_activity' pk=activity.pk %}" class="btn btn-success btn-sm">Mark as Completed</a>
-              <button type="button" class="show-details-btn" onclick="toggleDetails('{{ activity.pk }}')">Details</button>
-              <a href="{% url 'activity_edit' pk=activity.pk %}" class="btn">Edit</a>
-              <a href="{% url 'activity_delete' pk=activity.pk %}" class="btn">Delete</a>
-            </div>
-          </div>
-          <div class="details" id="details-{{ activity.pk }}">
-            <h3>Activity Details</h3>
-            <p><span class="label">Description:</span> {{ activity.description }}</p>
-            <p><span class="label">Due Date:</span> {{ activity.due_date|date:"Y-m-d" }}</p>
-            <p><span class="label">Reminder Time:</span> 
-              {% if activity.reminder_time %}
-                {{ activity.reminder_time|date:"Y-m-d H:i" }}
-              {% else %}
-                Not set
-              {% endif %}
-            </p>
-            <button type="button" class="close-btn" onclick="toggleDetails('{{ activity.pk }}')">Close</button>
-          </div>
-          {% endfor %}
-          <button type="submit" id="delete-selected-btn-pending" disabled>Delete Selected</button>
-        </form>
-      </section>
+      <!-- Task Links to View Details 
+      <div class="task-links">
+        <a href="{% url 'activity_board' %}">View Pending Tasks</a>
+        <a href="{% url 'activity_review' %}">View Completed Tasks</a>
+      </div>-->
 
-      <!-- Completed Activities -->
-      <section>
-        <h2>Completed Activities</h2>
-        <form method="POST" action="{% url 'delete_selected_completed_activities' %}">
-          {% csrf_token %}
-          {% for activity in completed_activities %}
-          <div class="activity-item">
-            <input type="checkbox" name="selected_completed_activities" value="{{ activity.pk }}" class="activity-checkbox completed">
-            <div class="activity-details">
-              <strong>{{ activity.title }}</strong>
-              <div class="priority-dot" style="background-color: {{ activity.priority_color }}">
-                {{ activity.get_priority_display }}
-              </div>
-            </div>
-            <div class="activity-actions">
-              <button type="button" class="show-details-btn" onclick="toggleDetails('{{ activity.pk }}')">Details</button>
-              <a href="{% url 'activity_edit' pk=activity.pk %}" class="btn">Edit</a>
-              <a href="{% url 'activity_delete' pk=activity.pk %}" class="btn">Delete</a>
+      <!-- Activity Board Section -->
+      <div class="grid">
+        {% for key, tasks in columns.items %}
+          <div class="card {% if key == 'today' %}bg-blue-100{% elif key == 'next_week' %}bg-yellow-100{% elif key == 'later' %}bg-green-100{% else %}bg-gray-200{% endif %}">
+            <h2>{{ key|title }}</h2>
+
+            <!-- Quick Add Form -->
+            <form method="post" action="{% url 'add_activity' key %}" class="form">
+              {% csrf_token %}
+              <input type="text" name="title" placeholder="New Task" required>
+              <button type="submit">Add Task</button>
+            </form>
+
+            <!-- Task List -->
+            <div class="task-list">
+              {% for task in tasks %}
+                <div class="task {% if task.completed %}bg-green-200{% endif %}">
+                  <div class="task-title">{{ task.title }}</div>
+                  <div class="task-actions">
+                    <form method="post" action="{% url 'complete_activity' task.pk %}" class="inline">
+                      {% csrf_token %}
+                      <button type="submit" title="Mark as Complete">✔</button>
+                    </form>
+                    <a href="{% url 'activity_edit' task.pk %}">✎</a>
+                  </div>
+                  {% if task.due_date %}
+                    <div class="due-date">Due: {{ task.due_date }}</div>
+                  {% endif %}
+                </div>
+              {% endfor %}
             </div>
           </div>
-          <div class="details" id="details-{{ activity.pk }}">
-            <h3>Activity Details</h3>
-            <p><span class="label">Description:</span> {{ activity.description }}</p>
-            <p><span class="label">Completed On:</span> {{ activity.date|date:"Y-m-d" }}</p>
-            <p><span class="label">Reminder Time:</span> 
-              {% if activity.reminder_time %}
-                {{ activity.reminder_time|date:"Y-m-d H:i" }}
-              {% else %}
-                Not set
-              {% endif %}
-            </p>
-            <button type="button" class="close-btn" onclick="toggleDetails('{{ activity.pk }}')">Close</button>
-          </div>
-          {% endfor %}
-          <button type="submit" id="delete-selected-btn-completed" disabled>Delete Selected</button>
-        </form>
-      </section>
+        {% endfor %}
+      </div>
     </main>
   </div>
 
@@ -446,25 +292,6 @@
     <p>&copy; 2025 Do It</p>
   </footer>
 
-  <script>
-    function toggleDetails(activityId) {
-      const details = document.getElementById('details-' + activityId);
-      details.style.display = (details.style.display === 'block') ? 'none' : 'block';
-    }
-
-    document.querySelectorAll('.activity-checkbox.pending').forEach(cb => {
-      cb.addEventListener('change', () => {
-        document.getElementById('delete-selected-btn-pending').disabled =
-          document.querySelectorAll('.activity-checkbox.pending:checked').length === 0;
-      });
-    });
-
-    document.querySelectorAll('.activity-checkbox.completed').forEach(cb => {
-      cb.addEventListener('change', () => {
-        document.getElementById('delete-selected-btn-completed').disabled =
-          document.querySelectorAll('.activity-checkbox.completed:checked').length === 0;
-      });
-    });
-  </script>
 </body>
+
 </html>
