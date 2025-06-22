@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welcome to Activity Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+  <header class="bg-blue-700 text-white p-6 shadow-md">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-3xl font-bold">Activity Tracker</h1>
+      <nav>
+        <a href="{% url 'activity_board' %}" class="hover:underline text-lg">My Activities</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-grow flex items-center justify-center px-4">
+    <div class="max-w-xl text-center">
+      <h2 class="text-4xl font-extrabold mb-4 text-gray-800">Welcome to Your Productivity Hub</h2>
+      <p class="text-gray-600 mb-8">Track, organize, and complete your tasks efficiently.</p>
+      <a href="{% url 'activity_board' %}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-blue-700 transition">
+        View Activity Board
+      </a>
+      <p class="mt-6 text-gray-500 text-sm">Manage your tasks, set reminders, and stay on top of your goals.</p>
+    </div>
+  </main>
+
+  <footer class="bg-gray-200 text-center py-4 text-gray-600 text-sm">
+    &copy; {{ now.year }} Activity Tracker. All rights reserved.
+  </footer>
+
+</body>
+</html>

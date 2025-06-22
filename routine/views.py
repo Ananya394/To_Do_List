@@ -16,7 +16,8 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-
+def home(request):
+   return render(request, 'routine/home.html')
 # # Check if user is an admin
 # def is_admin(user):
 #     return user.groups.filter(name='Admin').exists()
@@ -67,30 +68,133 @@ def admin_dashboard(request):
     
     return render(request, 'routine/admin_dashboard.html', context)  # Corrected 'context' here
 
-# Dashboard view for both Admin and Student
+from django.shortcuts import render, redirect
+from .models import Activity
+from django.contrib.auth.decorators import login_required
+from datetime import datetime, timedelta
+from django.shortcuts import redirect
+from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
+from .models import Activity
+from .forms import ActivityQuickForm
+from datetime import date, timedelta
+
 @login_required
 def dashboard(request):
     # Check if the user is an admin
     if is_admin(request.user):
         return redirect('admin_dashboard')  # Redirect admin to a separate admin dashboard
 
-    # Get activities for student (user is not an admin)
+    today = date.today()
+    next_week = today + timedelta(days=7)
+
     activities = Activity.objects.filter(user=request.user).order_by('date')
     pending_activities = activities.filter(status='P')
     completed_activities = activities.filter(status='C')
 
-    # Calculate progress for student
+    # Calculate progress
     total_activities = activities.count()
     completed_count = completed_activities.count()
     progress_percentage = (completed_count / total_activities) * 100 if total_activities > 0 else 0
 
-    # Render student dashboard with their activities
+    # Categorize tasks
+    category = {
+        'today': [],
+        'next_week': [],
+        'later': [],
+        'no_date': [],
+    }
+
+    for activity in activities:
+        if activity.completed:
+            continue
+        if not activity.date:
+            category['no_date'].append(activity)
+        elif activity.date == today:
+            category['today'].append(activity)
+        elif activity.date <= next_week:
+            category['next_week'].append(activity)
+        else:
+            category['later'].append(activity)
+
+    # Handle quick task form submission
+    if request.method == 'POST':
+        form = ActivityQuickForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.user = request.user
+            task.save()
+            # After adding the task, redirect to the same page
+            return redirect('dashboard')  # Stay on the same page after task creation
+
+    # Render the dashboard with the task list
+    form = ActivityQuickForm()
+
     return render(request, 'routine/dashboard.html', {
+        'columns': category,
+        'form': form,
         'activities': activities,
         'pending_activities': pending_activities,
         'completed_activities': completed_activities,
         'progress_percentage': progress_percentage,
+        'total_activities': total_activities,
+        'completed_count': completed_count,
     })
+
+
+@login_required
+def activity_board(request):
+    today = date.today()
+    next_week = today + timedelta(days=7)
+
+    activities = Activity.objects.filter(user=request.user)  # filter by user
+
+    category = {
+        'today': [],
+        'next_week': [],
+        'later': [],
+        'no_date': [],
+    }
+
+    for activity in activities:
+        if activity.completed:
+            continue
+        if not activity.date:
+            category['no_date'].append(activity)
+        elif activity.date == today:
+            category['today'].append(activity)
+        elif activity.date <= next_week:
+            category['next_week'].append(activity)
+        else:
+            category['later'].append(activity)
+
+    form = ActivityQuickForm()
+    return render(request, 'routine/activity_board.html', {'columns': category, 'form': form})
+
+# Dashboard view for both Admin and Student
+# @login_required
+# def dashboard(request):
+#     # Check if the user is an admin
+#     if is_admin(request.user):
+#         return redirect('admin_dashboard')  # Redirect admin to a separate admin dashboard
+
+#     # Get activities for student (user is not an admin)
+#     activities = Activity.objects.filter(user=request.user).order_by('date')
+#     pending_activities = activities.filter(status='P')
+#     completed_activities = activities.filter(status='C')
+
+#     # Calculate progress for student
+#     total_activities = activities.count()
+#     completed_count = completed_activities.count()
+#     progress_percentage = (completed_count / total_activities) * 100 if total_activities > 0 else 0
+
+#     # Render student dashboard with their activities
+#     return render(request, 'routine/dashboard.html', {
+#         'activities': activities,
+#         'pending_activities': pending_activities,
+#         'completed_activities': completed_activities,
+#         'progress_percentage': progress_percentage,
+#     })
     
 #admin views 
 
@@ -595,34 +699,6 @@ def checklist_add(request, activity_id):
 
 
 
-@login_required
-def activity_board(request):
-    today = date.today()
-    next_week = today + timedelta(days=7)
-
-    activities = Activity.objects.filter(user=request.user)  # filter by user
-
-    category = {
-        'today': [],
-        'next_week': [],
-        'later': [],
-        'no_date': [],
-    }
-
-    for activity in activities:
-        if activity.completed:
-            continue
-        if not activity.date:
-            category['no_date'].append(activity)
-        elif activity.date == today:
-            category['today'].append(activity)
-        elif activity.date <= next_week:
-            category['next_week'].append(activity)
-        else:
-            category['later'].append(activity)
-
-    form = ActivityQuickForm()
-    return render(request, 'routine/activity_board.html', {'columns': category, 'form': form})
 
 
 @login_required
