@@ -72,12 +72,6 @@ from django.shortcuts import render, redirect
 from .models import Activity
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
-from django.shortcuts import redirect
-from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
-from .models import Activity
-from .forms import ActivityQuickForm
-from datetime import date, timedelta
 
 @login_required
 def dashboard(request):
@@ -209,7 +203,34 @@ def edit_user(request, pk):
     else:
         form = UserProfileForm(instance=user)
     
-    return render(request, 'edit_user.html', {'form': form, 'user': user})
+    return render(request, 'routine/edit_user.html', {'form': form, 'user': user})
+from django.shortcuts import render, get_object_or_404
+from .models import Activity, UserProfile
+
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Activity, UserProfile
+
+@login_required
+def user_task_details(request, pk):
+    user_profile = get_object_or_404(UserProfile, pk=pk)
+    tasks = Activity.objects.filter(user=user_profile.user)
+    
+    completed_tasks_list = tasks.filter(status='C')
+    pending_tasks_list = tasks.filter(status='P')
+
+    context = {
+        'user': user_profile,
+        'tasks': tasks,
+        'completed_tasks_list': completed_tasks_list,
+        'pending_tasks_list': pending_tasks_list,
+        'total_tasks': tasks.count(),
+        'completed_tasks': completed_tasks_list.count(),
+        'pending_tasks': pending_tasks_list.count()
+    }
+
+    return render(request, 'routine/user_task_details.html', context)
+
 
 def delete_user(request, pk):
     user = get_object_or_404(UserProfile, pk=pk)
@@ -227,14 +248,29 @@ def edit_activity(request, pk):
     else:
         form = ActivityForm(instance=activity)
     
-    return render(request, 'edit_activity.html', {'form': form, 'activity': activity})
+    return render(request, 'routine/edit_activity.html', {'form': form, 'activity': activity})
                   
  
+# def delete_activity(request, pk):
+#     activity = get_object_or_404(Activity, pk=pk)
+#     activity.delete()  # Delete the activity
+#     return redirect('admin_dashboard')  # Redirect to admin dashboard after deletion
+ 
+from django.shortcuts import get_object_or_404, redirect
+from .models import Activity
+from django.contrib import messages
+
+from django.shortcuts import get_object_or_404, redirect
+from .models import Activity
+
 def delete_activity(request, pk):
     activity = get_object_or_404(Activity, pk=pk)
-    activity.delete()  # Delete the activity
-    return redirect('admin_dashboard')  # Redirect to admin dashboard after deletion
-                     
+    user_profile_pk = activity.user.userprofile.pk  # ✅ Get UserProfile PK
+
+    activity.delete()
+
+    return redirect('user_task_details', pk=user_profile_pk)
+
 @login_required
 def class_routine_list(request):
     day_filter = request.GET.get('day')
@@ -268,83 +304,6 @@ def edit_task(request, pk):
         form = MyNoteForm(instance=task)
 
     return render(request, 'routine/my_note_form.html', {'form': form})
-
-
-
-# def dashboard(request):
-#     # Get tasks related to the logged-in user
-#     tasks = MyNote.objects.filter(user=request.user).order_by('-created_at')
-    
-#     # You can also filter tasks by completion status or other criteria
-#     pending_tasks = tasks.filter(attended=False)
-#     completed_tasks = tasks.filter(attended=True)
-
-#     # Optionally, pass task progress, e.g., completed vs pending
-#     total_tasks = tasks.count()
-#     completed = completed_tasks.count()
-#     progress_percentage = (completed / total_tasks) * 100 if total_tasks > 0 else 0
-
-#     return render(request, 'routine/dashboard.html', {
-#         'tasks': tasks,
-#         'pending_tasks': pending_tasks,
-#         'completed_tasks': completed_tasks,
-#         'progress_percentage': progress_percentage
-#     })
-
-# @login_required
-# def dashboard(request):
-#     # Get activities related to the logged-in user
-#     activities = Activity.objects.filter(user=request.user).order_by('date')  # Order activities by date
-    
-#     # Filter activities by completion status
-#     pending_activities = activities.filter(status='P')
-#     completed_activities = activities.filter(status='C')
-
-#     # Calculate progress
-#     total_activities = activities.count()
-#     completed_count = completed_activities.count()
-#     progress_percentage = (completed_count / total_activities) * 100 if total_activities > 0 else 0
-
-#     return render(request, 'routine/dashboard.html', {
-#         'activities': activities,
-#         'pending_activities': pending_activities,
-#         'completed_activities': completed_activities,
-#         'progress_percentage': progress_percentage
-#     })
-# --------------
-# @login_required
-# def dashboard(request):
-#     # Get activities related to the logged-in user
-#     activities = Activity.objects.filter(user=request.user).order_by('date')  # Order activities by date
-
-#     # Filter activities by completion status
-#     pending_activities = activities.filter(status='P')
-#     completed_activities = activities.filter(status='C')
-
-#     # Define priority colors
-#     def get_priority_color(priority):
-#         if priority == 'High':
-#             return 'green'
-#         elif priority == 'Medium':
-#             return 'yellow'
-#         else:
-#             return 'red'
-
-#     # Attach priority color to each activity
-#     for activity in activities:
-#         activity.priority_color = get_priority_color(activity.priority)
-
-#     # Calculate progress
-#     total_activities = activities.count()
-#     completed_count = completed_activities.count()
-#     progress_percentage = (completed_count / total_activities) * 100 if total_activities > 0 else 0
-
-#     return render(request, 'routine/dashboard.html', {
-#         'activities': activities,
-#         'pending_activities': pending_activities,
-#         'completed_activities': completed_activities,
-#         'progress_percentage': progress_percentage
-#     })
 
 
 
@@ -720,7 +679,8 @@ def add_activity(request, category):
                 activity.tags = "#general"    
             activity.user = request.user  # always assign user
             activity.save()
-    return redirect('activity_board')
+    next_url = request.POST.get('next') or 'dashboard'  # fallback if 'next' not provided
+    return redirect(next_url)
 
 
 # @login_required

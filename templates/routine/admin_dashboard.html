@@ -242,7 +242,7 @@
 </head>
 <body>
   <header>
-    <div class="logo">Admin Dashboard</div>
+    <div class="logo">Activity Tracker</div>
     <nav>
       <a href="{% url 'logout' %}?next={{ request.path }}">Logout</a>
     </nav>
@@ -280,31 +280,17 @@
             <a href="{% url 'edit_user' pk=user.pk %}" class="btn">Edit</a>
     
             <a href="{% url 'delete_user' pk=user.pk %}" class="btn">Delete</a>
+            <a href="{% url 'user_task_details' pk=user.pk %}" class="btn">View Task Details</a>
           </div>
         </div>
         {% endfor %}
       </section>
 
-      <!-- Activity Management Section -->
-      <section>
-        <h2>Manage Activities</h2>
-        {% for activity in activities %}
-        <div class="activity-item">
-          <div class="activity-details">
-            <strong>{{ activity.title }}</strong>
-          </div>
-          <div class="activity-actions">
-            <a href="{% url 'edit_activity' pk=activity.pk %}" class="btn">Edit</a>
-            <a href="{% url 'delete_activity' pk=activity.pk %}" class="btn">Delete</a>
-          </div>
-        </div>
-        {% endfor %}
-      </section>
     </main>
   </div>
 
   <footer>
-    <p>&copy; 2025 Admin Dashboard</p>
+    <p>&copy; 2025 Activity Tracker</p>
   </footer>
 </body>
 </html>

@@ -1,0 +1,107 @@
+{% extends 'routine/base.html' %}
+
+{% block title %}User Task Details{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <!-- Header -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold">🧑‍💻 {{ user.user.username }}'s Task Overview</h2>
+  </div>
+
+  <!-- Task Stats -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-md-4 mb-3">
+      <div class="card text-white bg-primary shadow">
+        <div class="card-body text-center">
+          <h5>Total Tasks</h5>
+          <h2>{{ total_tasks }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card text-white bg-success shadow">
+        <div class="card-body text-center">
+          <h5>Completed Tasks</h5>
+          <h2>{{ completed_tasks }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card text-white bg-warning shadow">
+        <div class="card-body text-center">
+          <h5>Pending Tasks</h5>
+          <h2>{{ pending_tasks }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categorized Task Management -->
+  <div class="row">
+    <div class="col-12">
+
+      
+
+      <!-- Completed Tasks -->
+      <div class="card shadow mb-4">
+        <div class="card-header bg-success text-white">
+          <h4 class="mb-0">✅ Completed Tasks</h4>
+        </div>
+        <div class="card-body p-0">
+          {% if completed_tasks_list %}
+            <ul class="list-group list-group-flush">
+              {% for activity in completed_tasks_list %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <div class="text-truncate" style="max-width: 60%;">
+                    <strong>{{ activity.title }}</strong>
+                  </div>
+                  <div>
+                    <a href="{% url 'edit_activity' activity.pk %}" class="btn btn-sm btn-outline-info me-2">Edit</a>
+                    <a href="{% url 'delete_activity' activity.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="p-3 text-muted">No completed tasks.</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Pending Tasks -->
+      <div class="card shadow mb-4">
+        <div class="card-header bg-warning text-dark">
+          <h4 class="mb-0">⏳ Pending Tasks</h4>
+        </div>
+        <div class="card-body p-0">
+          {% if pending_tasks_list %}
+            <ul class="list-group list-group-flush">
+              {% for activity in pending_tasks_list %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <div class="text-truncate" style="max-width: 60%;">
+                    <strong>{{ activity.title }}</strong>
+                  </div>
+                  <div>
+                    <a href="{% url 'edit_activity' activity.pk %}" class="btn btn-sm btn-outline-info me-2">Edit</a>
+                    <a href="{% url 'delete_activity' activity.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="p-3 text-muted">No pending tasks.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back Button -->
+  <div class="text-center mt-4">
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary btn-lg">
+      ⬅️ Back to Admin Dashboard
+    </a>
+  </div>
+</div>
+{% endblock %}

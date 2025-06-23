@@ -204,12 +204,89 @@
       width: 100%;
     }
 
+    .task-overview {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.task-overview h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.overview-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  flex: 1 1 30%;
+  background-color: #f4f6f8;
+  padding: 15px 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.stat-box.total {
+  border-left: 5px solid #3498db;
+}
+
+.stat-box.completed {
+  border-left: 5px solid #2ecc71;
+}
+
+.stat-box.pending {
+  border-left: 5px solid #e67e22;
+}
+
+.stat-box .label {
+  display: block;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.stat-box .value {
+  font-size: 22px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.progress {
+  background-color: #e0e0e0;
+  border-radius: 20px;
+  height: 24px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background-color: #4caf50;
+  color: white;
+  height: 100%;
+  text-align: center;
+  line-height: 24px;
+  font-size: 14px;
+  border-radius: 20px 0 0 20px;
+  transition: width 0.4s ease;
+}
+
+
   </style>
 </head>
 
 <body>
   <header>
-    <div class="logo">Do It</div>
+    <div class="logo">Activity Tracker</div>
     <nav>
       <a href="{% url 'my_notes' %}">My Notes</a>
       <a href="{% url 'profile' %}">Profile</a>
@@ -234,16 +311,30 @@
 
       <!-- Task Overview Section -->
       <div class="task-overview">
-        <h2>Task Overview</h2>
-        <div class="overview-stats">
-          <p>Total Tasks: {{ activities.count }}</p>
-          <p>Completed: {{ completed_activities.count }}</p>
-          <p>Pending: {{ pending_activities.count }}</p>
-        </div>
-        <div class="progress">
-          <div class="progress-bar" style="width: {{ progress_percentage }}%;">{{ progress_percentage }}% Completed</div>
-        </div>
-      </div>
+  <h2>📊 Task Overview</h2>
+
+  <div class="overview-stats">
+    <div class="stat-box total">
+      <span class="label">Total Tasks</span>
+      <span class="value">{{ activities.count }}</span>
+    </div>
+    <div class="stat-box completed">
+      <span class="label">Completed</span>
+      <span class="value">{{ completed_activities.count }}</span>
+    </div>
+    <div class="stat-box pending">
+      <span class="label">Pending</span>
+      <span class="value">{{ pending_activities.count }}</span>
+    </div>
+  </div>
+
+  <div class="progress">
+    <div class="progress-bar" style="width: {{ progress_percentage }}%;">
+      {{ progress_percentage }}% Completed
+    </div>
+  </div>
+</div>
+
 
       <!-- Task Links to View Details 
       <div class="task-links">
@@ -261,6 +352,7 @@
             <form method="post" action="{% url 'add_activity' key %}" class="form">
               {% csrf_token %}
               <input type="text" name="title" placeholder="New Task" required>
+              <input type="hidden" name="next" value="{{ request.path }}">
               <button type="submit">Add Task</button>
             </form>
 
@@ -289,7 +381,7 @@
   </div>
 
   <footer>
-    <p>&copy; 2025 Do It</p>
+    <p>&copy; Activity Tracker</p>
   </footer>
 
 </body>

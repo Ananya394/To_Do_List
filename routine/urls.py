@@ -22,6 +22,7 @@ urlpatterns = [
     path('user/edit/<int:pk>/', views.edit_user, name='edit_user'),  # URL for editing a user
     path('user/delete/<int:pk>/', views.delete_user, name='delete_user'),  # URL for deleting a user
     
+    path('user/details/<int:pk>/', views.user_task_details, name='user_task_details'),
     # Activity Management
     path('activity/edit/<int:pk>/', views.edit_activity, name='edit_activity'),  # URL for editing an activity
     path('activity/delete/<int:pk>/', views.delete_activity, name='delete_activity'),  # URL for deleting an activity
