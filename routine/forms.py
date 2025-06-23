@@ -4,10 +4,7 @@ from django.contrib.auth.models import User
 from .models import MyNote
 from .models import UserProfile
 from django.contrib.auth.forms import AuthenticationForm
-class UserProfileForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ['bio', 'profile_picture']  
+
 #eti
 
 class UserProfileForm(forms.ModelForm):
