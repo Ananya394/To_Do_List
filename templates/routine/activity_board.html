@@ -25,6 +25,7 @@
         <form method="post" action="{% url 'add_activity' key %}" class="mb-3">
           {% csrf_token %}
           <input type="text" name="title" placeholder="New Task" class="w-full p-1 rounded border" required>
+          <input type="hidden" name="next" value="{{ request.path }}">
           <button type="submit" class="w-full mt-1 bg-blue-500 text-white rounded px-2 py-1">Add Task</button>
         </form>
 

@@ -67,6 +67,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                
+                # eti
+                 'django.template.context_processors.csrf',
+                #  eti
             ],
         },
     },
@@ -116,6 +120,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+
 # Session Engine: Use database to store sessions
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
@@ -134,7 +139,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_REDIRECT_URL = '/'  # Redirect to homepage after login
+
+#eti
+LOGIN_REDIRECT_URL = '/dashboard/'
+#eti
 LOGOUT_REDIRECT_URL = '/'  
 # Media files (images, uploaded files, etc.)
 MEDIA_URL = '/media/'  # URL to serve media files

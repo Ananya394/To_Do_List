@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from .forms import RegistrationForm, ClassRoutineForm, MyNoteForm, ExamForm
+from .forms import RegistrationForm, ClassRoutineForm, MyNoteForm, ExamForm,LoginForm
 from .models import UserProfile, ClassRoutine, MyNote, ExamRoutine
 from django.contrib.auth.decorators import login_required
 from .forms import UserProfileForm
@@ -16,8 +16,32 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 
+ #eti 
 def home(request):
-   return render(request, 'routine/home.html')
+    login_form = LoginForm()
+    register_form = RegistrationForm()
+    return render(request, 'routine/home.html', {
+        'login_form': login_form,
+        'register_form': register_form
+    })
+
+
+
+def custom_login_view(request):
+    if request.method == 'POST':
+        form = LoginForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('activity_board')  # or wherever
+    else:
+        form = LoginForm()
+    return render(request, 'routine/login.html', {'form': form})
+
+
+
+# eti
+
 # # Check if user is an admin
 # def is_admin(user):
 #     return user.groups.filter(name='Admin').exists()
@@ -54,6 +78,8 @@ def is_admin(user):
     
 #     return render(request, 'routine/admin_dashboard.html', context)
 
+ 
+
 @login_required
 @user_passes_test(is_admin)
 def admin_dashboard(request):
@@ -72,12 +98,6 @@ from django.shortcuts import render, redirect
 from .models import Activity
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
-from django.shortcuts import redirect
-from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
-from .models import Activity
-from .forms import ActivityQuickForm
-from datetime import date, timedelta
 
 @login_required
 def dashboard(request):
@@ -209,7 +229,23 @@ def edit_user(request, pk):
     else:
         form = UserProfileForm(instance=user)
     
-    return render(request, 'edit_user.html', {'form': form, 'user': user})
+    return render(request, 'routine/edit_user.html', {'form': form, 'user': user})
+@login_required
+def user_details(request, pk):
+    user = get_object_or_404(UserProfile, pk=pk)
+    
+    # Get the user's tasks
+    total_tasks = Activity.objects.filter(user=user).count()
+    completed_tasks = Activity.objects.filter(user=user, status='C').count()
+    pending_tasks = Activity.objects.filter(user=user, status='P').count()
+
+    # Pass the task details to the template
+    return render(request, 'routine/user_details.html', {
+        'user': user,
+        'total_tasks': total_tasks,
+        'completed_tasks': completed_tasks,
+        'pending_tasks': pending_tasks
+    })
 
 def delete_user(request, pk):
     user = get_object_or_404(UserProfile, pk=pk)
@@ -227,7 +263,7 @@ def edit_activity(request, pk):
     else:
         form = ActivityForm(instance=activity)
     
-    return render(request, 'edit_activity.html', {'form': form, 'activity': activity})
+    return render(request, 'routine/edit_activity.html', {'form': form, 'activity': activity})
                   
  
 def delete_activity(request, pk):
@@ -720,7 +756,8 @@ def add_activity(request, category):
                 activity.tags = "#general"    
             activity.user = request.user  # always assign user
             activity.save()
-    return redirect('activity_board')
+    next_url = request.POST.get('next') or 'dashboard'  # fallback if 'next' not provided
+    return redirect(next_url)
 
 
 # @login_required

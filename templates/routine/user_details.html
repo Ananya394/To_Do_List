@@ -1,0 +1,20 @@
+{% extends 'routine/base.html' %}
+
+{% block title %}User Details{% endblock %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2>User Details: {{ user.user.username }}</h2>
+    
+    <!-- User Task Overview -->
+    <div class="task-overview">
+      <h3>Task Overview</h3>
+      <p>Total Tasks: {{ total_tasks }}</p>
+      <p>Completed Tasks: {{ completed_tasks }}</p>
+      <p>Pending Tasks: {{ pending_tasks }}</p>
+    </div>
+    
+    <!-- Back Button -->
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+  </div>
+{% endblock %}
