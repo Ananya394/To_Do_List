@@ -3,104 +3,131 @@
 {% block title %}{{ profile.user.username }}'s Profile{% endblock %}
 
 {% block content %}
-    <style>
-        body {
-            background-color: rgb(240, 215, 189); /* Background color */
-        }
+<style>
+  .profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+    background-color: #f4f7fc;
+  }
 
-        h2 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            color: #333;
-        }
+  .profile-card {
+    background-color: white;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+  }
 
-        .btn-lg {
-            padding: 15px 25px;
-            font-size: 18px;
-            border-radius: 50px;
-            background-color:rgb(94, 42, 3);
-            border-color:rgb(245, 186, 128);
-            transition: background-color 0.3s ease;
-        }
+  .back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+  }
 
-        .btn-lg:hover {
-            background-color: #0056b3;
-        }
+  .back-button a {
+    background-color: #4caf50;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+  }
 
-        .text-muted {
-            color: #888;
-        }
+  .back-button a:hover {
+    background-color: #2c80b4;
+  }
 
-        .lead {
-            font-size: 1.25rem;
-            color: #555;
-        }
+  .profile-card h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: rgb(3, 41, 4);
+  }
 
-        .img-fluid {
-            max-width: 100%;
-            height: auto;
-        }
+  .profile-picture {
+    margin-bottom: 20px;
+  }
 
-        .rounded-circle {
-            border-radius: 50%;
-        }
+  .profile-picture img {
+    border-radius: 50%;
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
 
-        .container {
-            background-color:rgb(245, 186, 128) ; /* Outer container color */
-            border-radius: 10px;
-            box-shadow: 0px 0px 9px 9px rgba(82, 52, 5, 0.9);
-            padding: 30px;
-        }
+  .bio-section {
+    margin-bottom: 30px;
+  }
 
-        .inner-container {
-            background-color: rgb(240, 215, 189); /* Inner container matching the background color */
-            border-radius: 10px;
-            padding: 30px;
-        }
+  .bio-section h4 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #333;
+  }
 
-        .mt-5 {
-            margin-top: 50px;
-        }
+  .bio-section p {
+    font-size: 16px;
+    color: #666;
+  }
 
-        .mb-4 {
-            margin-bottom: 30px;
-        }
+  .profile-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
 
-        .row {
-            margin-bottom: 30px;
-        }
-    </style>
+  .profile-actions a {
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    font-weight: 500;
+  }
 
-    <!-- Outer Container -->
-    <div class="container mt-5">
-        <div class="inner-container">
-            <h2 class="text-center mb-4">{{ profile.user.username }}'s Profile</h2>
-            
-            <!-- Profile Picture Section -->
-            <div class="row justify-content-center">
-                <div class="col-md-4 text-center">
-                    {% if profile.profile_picture %}
-                        <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded-circle" width="200">
-                    {% else %}
-                        <p class="text-muted">No profile picture uploaded.</p>
-                    {% endif %}
-                </div>
-            </div>
+  .profile-actions a:hover {
+    background-color: #388e3c;
+  }
+</style>
 
-            <!-- Bio Section -->
-            <div class="row justify-content-center mt-4">
-                <div class="col-md-6">
-                    <h4>Bio</h4>
-                    <p class="lead">{{ profile.bio|default:"No bio provided." }}</p>
-                </div>
-            </div>
+<div class="profile-container">
+  <div class="profile-card">
 
-            <!-- Edit Profile Link -->
-            <div class="row justify-content-center mt-4">
-                <div class="col-md-4 text-center">
-                    <a href="{% url 'edit_profile' %}" class="btn btn-primary btn-lg">Edit Profile</a>
-                </div>
-            </div>
-        </div>
+    <div class="back-button">
+      <a href="{% url 'dashboard' %}">🏠 Back</a>
     </div>
+
+    <h2>{{ profile.user.username }}'s Profile</h2>
+
+    <div class="profile-picture">
+      {% if profile.profile_picture %}
+        <img src="{{ profile.profile_picture.url }}" alt="Profile Picture">
+      {% else %}
+        <p class="text-muted">No profile picture uploaded.</p>
+      {% endif %}
+    </div>
+
+    <div class="bio-section">
+      <h4>Bio</h4>
+      <p>{{ profile.bio|default:"No bio provided." }}</p>
+    </div>
+
+    <div class="profile-actions">
+      <a href="{% url 'edit_profile' %}">Edit Profile</a>
+      <a href="{% url 'password_change' %}">Change Password</a>
+    </div>
+
+  </div>
+</div>
 {% endblock %}

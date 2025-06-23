@@ -1,0 +1,12 @@
+{% extends 'routine/base.html' %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Add Checklist Item to "{{ activity.title }}"</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success mt-2">Add</button>
+    <a href="{% url 'activity_list' %}" class="btn btn-secondary mt-2">Back</a>
+</form>
+{% endblock %}
