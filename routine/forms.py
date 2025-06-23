@@ -3,12 +3,34 @@ from .models import ClassRoutine,ExamRoutine
 from django.contrib.auth.models import User
 from .models import MyNote
 from .models import UserProfile
-
+from django.contrib.auth.forms import AuthenticationForm
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['bio', 'profile_picture']  
+#eti
 
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['bio', 'profile_picture'] 
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full p-2 border border-gray-300 rounded',
+            'placeholder': 'Username'
+        })
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full p-2 border border-gray-300 rounded',
+            'placeholder': 'Password'
+        })
+    ) 
+    
+#eti
 # class RegistrationForm(forms.ModelForm):
 #     password = forms.CharField(widget=forms.PasswordInput())
 #     password_confirm = forms.CharField(widget=forms.PasswordInput())
@@ -91,7 +113,7 @@ class ExamForm(forms.ModelForm):
 class MyNoteForm(forms.ModelForm):
     class Meta:
         model = MyNote
-        fields = ['title', 'description', 'attachment', 'memory_prompt', 'attended', 'priority', 'due_date']
+        fields = ['title', 'description', 'attachment']
 
     # You can add any custom validation or styling here if needed
 

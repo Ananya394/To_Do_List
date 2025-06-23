@@ -67,6 +67,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.csrf',
             ],
         },
     },
@@ -134,8 +135,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_REDIRECT_URL = '/'  # Redirect to homepage after login
+
+LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'  
 # Media files (images, uploaded files, etc.)
 MEDIA_URL = '/media/'  # URL to serve media files
 MEDIA_ROOT = BASE_DIR / 'media/'  # The directory where media files will be stored
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media') 
