@@ -273,11 +273,11 @@
         <h2>Manage Users</h2>
         {% for user in users %}
         <div class="activity-item">
-          <div class="activity-details">
+          {% comment %} <div class="activity-details"> {% endcomment %}
             <strong>{{ user.user.username }}</strong>
           </div>
           <div class="activity-actions">
-            <a href="{% url 'edit_user' pk=user.pk %}" class="btn">Edit</a>
+            <a href="{% url 'edit_user' pk=user.pk %}" class="btn">View Personal Details</a>
     
             <a href="{% url 'delete_user' pk=user.pk %}" class="btn">Delete</a>
             <a href="{% url 'user_task_details' pk=user.pk %}" class="btn">View Task Details</a>

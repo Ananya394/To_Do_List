@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container my-5">
 
-  <h2 class="text-center mb-4 fw-bold">📊 Task Completion & Time Summary</h2>
+ 
 
  
 
@@ -39,6 +39,10 @@
     calendar.render();
   });
 </script>
-
+<div class="text-center mb-4">
+  <a href="{% url 'dashboard' %}" class="btn btn-primary px-4 py-2 shadow-sm">
+    -🏠Back
+  </a>
+</div>
 
 {% endblock %}
