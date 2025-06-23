@@ -9,6 +9,8 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     # Authentication Views
+    #eti
+    path('', views.home, name='home'),
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),
     path('logout/', views.logout_view, name='logout'),
@@ -21,7 +23,7 @@ urlpatterns = [
     # User Management
     path('user/edit/<int:pk>/', views.edit_user, name='edit_user'),  # URL for editing a user
     path('user/delete/<int:pk>/', views.delete_user, name='delete_user'),  # URL for deleting a user
-    
+    path('user/details/<int:pk>/', views.user_details, name='user_details'),
     # Activity Management
     path('activity/edit/<int:pk>/', views.edit_activity, name='edit_activity'),  # URL for editing an activity
     path('activity/delete/<int:pk>/', views.delete_activity, name='delete_activity'),  # URL for deleting an activity

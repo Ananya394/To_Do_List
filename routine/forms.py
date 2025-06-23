@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm
 from .models import ClassRoutine,ExamRoutine
 from django.contrib.auth.models import User
 from .models import MyNote
@@ -25,6 +26,30 @@ class UserProfileForm(forms.ModelForm):
 #         if password != password_confirm:
 #             raise forms.ValidationError("Passwords do not match")
 #         return cleaned_data
+
+#eti
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['bio', 'profile_picture'] 
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full p-2 border border-gray-300 rounded',
+            'placeholder': 'Username'
+        })
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full p-2 border border-gray-300 rounded',
+            'placeholder': 'Password'
+        })
+    ) 
+    
+#eti
 
 class RegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
